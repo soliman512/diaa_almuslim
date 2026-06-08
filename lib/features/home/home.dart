@@ -33,12 +33,17 @@ class _HomeState extends State<Home> {
   String? headerAyah;
   List<Map<String, dynamic>> initialPrayerTimes = [];
   List<Map<String, dynamic>> finalPrayerTimes = [];
-  Map<String, dynamic> nextPrayer = {"name": "جاري التحميل", "time": DateTime.now()};
+  Map<String, dynamic> nextPrayer = {
+    "name": "جاري التحميل",
+    "time": DateTime.now(),
+  };
   Map<String, dynamic>? foundPrayer;
   ValueNotifier<String> remainder = ValueNotifier<String>("");
   double? latitude;
   double? longitude;
   bool isLoading = false;
+  ValueNotifier<bool> showUpdateDot = ValueNotifier<bool>(false);
+
   void getHeaderAyah() {
     List<String> ayat = ConstTexts.headerAyats;
     final randomGenerator = Random();
@@ -162,17 +167,21 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
+    super.initState();
+    AppActionsService.hasNewUpdate().then((isUpdateAvailable) {
+      showUpdateDot.value = isUpdateAvailable;
+    });
     getUserLocation();
     getHijriDate();
     startTimer();
     getHeaderAyah();
+    AppActionsService.hasNewUpdate();
     Future.delayed(
       Duration(milliseconds: 10),
       () => setState(() {
         _isVisible = true;
       }),
     );
-    super.initState();
   }
 
   @override
@@ -180,6 +189,7 @@ class _HomeState extends State<Home> {
     _timer?.cancel();
     remainder.dispose();
     _timeNotifier.dispose();
+    showUpdateDot.dispose();
     super.dispose();
   }
 
@@ -480,7 +490,7 @@ class _HomeState extends State<Home> {
                   child: Header(content: headerAyah ?? "قـــل الحــمد للـــه"),
                 ),
 
-                SizedBox(height: 30   ),
+                SizedBox(height: 30),
                 // buttons
                 Expanded(
                   flex: 7,
@@ -540,7 +550,28 @@ class _HomeState extends State<Home> {
                               ),
                             ],
                           ),
-                          SettingsButton(),
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              SettingsButton(),
+                              ValueListenableBuilder(
+                                valueListenable: showUpdateDot,
+                                builder: (context, value, child) {
+                                  return Visibility(
+                                    visible: value,
+                                    child: Positioned(
+                                      left: 2,
+                                      top: 0,
+                                      child: CircleAvatar(
+                                        backgroundColor: ConstColors.deepOrange,
+                                        radius: 8,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),

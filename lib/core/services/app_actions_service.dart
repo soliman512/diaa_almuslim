@@ -117,6 +117,73 @@ class AppActionsService {
     }
   }
 
+  static Future<bool> hasNewUpdate() async {
+    final url = Uri.parse(
+      "https://api.github.com/repos/${ConstTexts.githubUsername}/${ConstTexts.repoName}/releases/latest",
+    );
+
+    try {
+      final response = await http.get(url).timeout(const Duration(seconds: 5));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        String latestVersion = data['tag_name'];
+
+        globalAppSharingLink =
+            (data['assets'] != null && data['assets'].isNotEmpty)
+            ? data['assets'][0]['browser_download_url']
+            : data['html_url'];
+
+        latestVersion = latestVersion.replaceAll('v', '').trim();
+
+        PackageInfo packageInfo = await PackageInfo.fromPlatform();
+        String currentVersion = packageInfo.version.trim();
+
+        globalCurrentVersoin = currentVersion;
+
+        if (currentVersion != latestVersion) {
+          globalCheckCurrentVersion = false;
+          return true;
+        }
+        debugPrint("--- [DEBUG] Server Version: '$latestVersion'");
+        debugPrint("--- [DEBUG] Local Version: '$currentVersion'");
+        globalCheckCurrentVersion = true;
+        return false;
+      }
+    } catch (e) {
+      debugPrint("Silent Update Check Error: $e");
+    }
+    return false;
+  }
+
+  static Future<void> fetchLatestReleaseInfo() async {
+    final url = Uri.parse(
+      "https://api.github.com/repos/${ConstTexts.githubUsername}/${ConstTexts.repoName}/releases/latest",
+    );
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        String latestVersion = data['tag_name'];
+        String downloadUrl =
+            (data['assets'] != null && data['assets'].isNotEmpty)
+            ? data['assets'][0]['browser_download_url']
+            : data['html_url'];
+
+        globalAppSharingLink = downloadUrl;
+        latestVersion = latestVersion.replaceAll('v', '').trim();
+
+        PackageInfo packageInfo = await PackageInfo.fromPlatform();
+        String currentVersion = packageInfo.version;
+        globalCurrentVersoin = currentVersion;
+        globalCheckCurrentVersion = currentVersion == latestVersion;
+      }
+    } catch (e) {
+      debugPrint("Fetch Release Info Error: $e");
+    }
+  }
+
   static void openBasaerOnTiktok(BuildContext context) async {
     final url = Uri.parse(ConstTexts.basaerChannelUrl);
     if (!await launchUrl(url)) {
@@ -230,15 +297,25 @@ class AppActionsService {
   // ====================== share app ======================
 
   static void shareApp(BuildContext context) async {
-    await checkAppUpdate(context);
+    if (globalAppSharingLink == null) {
+      await fetchLatestReleaseInfo();
+    }
+
+    String fallbackLink =
+        "https://github.com/${ConstTexts.githubUsername}/${ConstTexts.repoName}/releases";
+    String finalLink = globalAppSharingLink ?? fallbackLink;
+
     String message =
         "【 ${ConstTexts.appName} 】\n\n"
         "تطبيق إسلامي — صدقة جارية، أذكار، وأدعية شاملة، بمميزات وبدون أي إعلانات لتوفير تجربة هادئة ومريحة.\n\n"
         "ساهم في نشر الخير فالدّال على الخير كفاعله، يمكنك تحميل التطبيق مباشرة عبر الرابط التالي:\n"
-        "$globalAppSharingLink\n\n"
+        "$finalLink\n\n"
         "ــــــــــــــــــــــــــــــــــــــــ\n"
-        "تطبيق ${ConstTexts.appName} | زادك المسلم اليومي";
-    await SharePlus.instance.share(ShareParams(text: message));
+        "تطبيق ${ConstTexts.appName} | ونيس المسلم اليومي";
+
+    if (context.mounted) {
+      await SharePlus.instance.share(ShareParams(text: message));
+    }
   }
 }
 
