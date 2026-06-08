@@ -13,11 +13,15 @@ class AppTheme {
       trackVisibility: WidgetStatePropertyAll(false),
       thickness: WidgetStatePropertyAll(0),
     ),
-    scaffoldBackgroundColor: Color(0xffF5F5F5),
+    scaffoldBackgroundColor: ConstColors.lightMode,
+
     fontFamily: 'el-messiri',
     appBarTheme: AppBarTheme(
       toolbarHeight: 80,
       elevation: 0,
+      surfaceTintColor: ConstColors.lightMode,
+
+      scrolledUnderElevation: 3.0,
       backgroundColor: Colors.transparent,
       systemOverlayStyle: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -42,11 +46,13 @@ class AppTheme {
       trackVisibility: WidgetStatePropertyAll(false),
       thickness: WidgetStatePropertyAll(0),
     ),
-    scaffoldBackgroundColor: Color(0xff202020),
+    scaffoldBackgroundColor: ConstColors.darkMode,
     fontFamily: 'el-messiri',
     appBarTheme: AppBarTheme(
       toolbarHeight: 80,
+      surfaceTintColor: ConstColors.darkMode,
 
+      scrolledUnderElevation: 3.0,
       elevation: 0,
       backgroundColor: Colors.transparent,
       systemOverlayStyle: SystemUiOverlayStyle(

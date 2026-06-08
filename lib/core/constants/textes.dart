@@ -5,6 +5,8 @@ class ConstTexts {
   static String mesbha = 'المِسْبَحَة';
   static String allahNames = 'واحة الاسماء';
   static String meraj = 'معراج';
+  static String prayerAzkar = 'أذكار بعد الصلاة';
+  static String hisnElmuslim = 'حصن المسلم';
   static String settings = 'الإعدادات';
   static String basaerChannelUrl = "https://vm.tiktok.com/ZS9YmuM5upNPY-1KWQT/";
   static const String githubUsername = "soliman512";

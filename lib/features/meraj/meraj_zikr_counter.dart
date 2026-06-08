@@ -5,7 +5,7 @@ import 'package:zad_almuslim/core/widgets/counter_button.dart';
 import 'package:zad_almuslim/core/widgets/drawer.dart';
 import 'package:zad_almuslim/core/widgets/special_body.dart';
 import 'package:zad_almuslim/core/widgets/appbar.dart';
-import 'package:zad_almuslim/features/meraj/logic/meraj_user_completed_azkar.dart';
+import 'package:zad_almuslim/features/meraj/meraj_user_completed_azkar.dart';
 
 // ignore: must_be_immutable
 class MerajZikrCounter extends StatefulWidget {
@@ -52,36 +52,37 @@ class _MerajZikrCounterState extends State<MerajZikrCounter> {
             // zikr
             Expanded(
               child: SizedBox(
-              
                 child: MediaQuery(
-                    data: MediaQuery.of(context).copyWith(
-                  textScaler: TextScaler.linear(widget.fontSizeFactor),
-                ),
+                  data: MediaQuery.of(context).copyWith(
+                    textScaler: TextScaler.linear(widget.fontSizeFactor),
+                  ),
                   child: Padding(
                     padding: EdgeInsets.only(
                       top: MediaQuery.sizeOf(context).height * .15,
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: MediaQuery.sizeOf(context).height * .05,
-                      children: [
-                        Text(
-                          widget.title,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleLarge!
-                              .copyWith(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                        Text(
-                          widget.zikr,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyMedium!
-                              .copyWith(fontSize: 18, height: 1.5),
-                        ),
-                      ],
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        spacing: MediaQuery.sizeOf(context).height * .05,
+                        children: [
+                          Text(
+                            widget.title,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.titleLarge!
+                                .copyWith(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          Text(
+                            widget.zikr,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyMedium!
+                                .copyWith(fontSize: 18, height: 1.5),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -118,7 +119,6 @@ class _MerajZikrCounterState extends State<MerajZikrCounter> {
             SizedBox(height: 10),
             // controls
             Expanded(
-              
               child: SizedBox(
                 width: double.infinity,
                 child: CounterButton(

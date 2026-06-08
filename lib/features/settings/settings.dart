@@ -29,6 +29,7 @@ class _SettingsState extends State<Settings> {
 
   void isThereUpdate() async {
     await AppActionsService.checkAppUpdate(context);
+    if (!mounted) return;
     setState(() {});
   }
 
@@ -256,6 +257,7 @@ class _SettingsState extends State<Settings> {
                     //       ),
                     //     ),
                     //   ),
+                  
                   ],
                 ),
               ),

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:number_to_word_arabic/number_to_word_arabic.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zad_almuslim/core/constants/colors.dart';
 import 'package:zad_almuslim/core/constants/icons.dart';
 import 'package:zad_almuslim/core/constants/textes.dart';
+import 'package:zad_almuslim/core/utils/numbers_to_ar_format.dart';
 import 'package:zad_almuslim/core/widgets/appbar.dart';
 import 'package:zad_almuslim/core/widgets/drawer.dart';
 import 'package:zad_almuslim/core/widgets/progress.dart';
 import 'package:zad_almuslim/core/widgets/special_body.dart';
-import 'package:zad_almuslim/features/meraj/logic/meraj_logic.dart';
-import 'package:zad_almuslim/features/meraj/logic/meraj_user_completed_azkar.dart';
-import 'package:zad_almuslim/features/meraj/view/meraj_zikr_counter.dart';
+import 'package:zad_almuslim/features/meraj/meraj_logic.dart';
+import 'package:zad_almuslim/features/meraj/meraj_user_completed_azkar.dart';
+import 'package:zad_almuslim/features/meraj/meraj_zikr_counter.dart';
 
 class Meraj extends StatefulWidget {
   const Meraj({super.key, this.fontSizeFactor = 1.0});
@@ -34,10 +37,159 @@ class _MerajState extends State<Meraj> {
     });
   }
 
+  Future<void> _checkFirstTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
+
+    if (isFirstTime) {
+      _showWelcomeDialog();
+
+      await prefs.setBool('isFirstTime', false);
+    }
+  }
+
+  void _showWelcomeDialog() {
+    showDialog(
+      context: context,
+      barrierColor: Colors.transparent,
+      barrierDismissible: false,
+      builder: (context) => Material(
+        type: MaterialType.transparency,
+        child: Stack(
+          children: [
+            ColorFiltered(
+              colorFilter: ColorFilter.mode(
+                Colors.black.withOpacity(0.8),
+                BlendMode.srcOut,
+              ),
+              child: Stack(
+                children: [
+                  // Container(color: Colors.transparent),
+                  Positioned(
+                    top: 70,
+                    left: 20,
+                    right: 20,
+                    child: Container(
+                      height: 210,
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(40),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Positioned(
+              top: 70,
+              left: 20,
+              right: 20,
+              child: Container(
+                height: 210,
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  border: Border.all(
+                    color: ConstColors.secondMainColor,
+                    width: 2,
+                  ),
+                  borderRadius: BorderRadius.circular(40),
+                  boxShadow: [
+                    BoxShadow(
+                      color: ConstColors.secondMainColor.withOpacity(0.6),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                      blurStyle: BlurStyle.outer,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            Positioned(
+              top: 295,
+              left: 15,
+              right: 15,
+              bottom: 20,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        spacing: 10,
+                        children: [
+                          _buildHintCard(
+                            icon: Icons.touch_app_rounded,
+                            text:
+                                "يمكنك الضغط على الذكر لمعرفة تفاصيله أكثر وتعلمه",
+                          ),
+                          _buildHintCard(
+                            icon: Icons.speaker_notes_rounded,
+                            text: "اختر قول الذكر لقوله بالمرات المطلوبه",
+                          ),
+                          _buildHintCard(
+                            icon: Icons.done,
+                            text:
+                                "بعد الانتهاء ستجد ان الذكر قد تم تمييزه بعلامة الحفظ",
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ConstColors.secondMainColor,
+                      minimumSize: const Size(150, 45),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    child: const Text(
+                      "فهمت",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHintCard({required IconData icon, required String text}) {
+    return Card(
+      color: Colors.black.withOpacity(0.7),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: ListTile(
+        leading: Icon(icon, color: ConstColors.secondMainColor),
+        title: Text(
+          text,
+          style: TextStyle(
+            color: ConstColors.secondMainColor,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     loadAzkar();
     super.initState();
+    _checkFirstTime();
   }
 
   @override
@@ -112,7 +264,11 @@ class _MerajState extends State<Meraj> {
                                           _sectionTitle("التكرار", context),
                                           _zikrContentText(
                                             context,
-                                            "$repeat مرة",
+                                            "${Tafqeet.convert(repeat.toString())} ${(repeat == 0
+                                                ? "مرة"
+                                                : (repeat >= 3 && repeat <= 10) || (repeat > 100 && repeat % 100 >= 3 && repeat % 100 <= 10)
+                                                ? "مرات"
+                                                : "مرة")}",
                                           ),
                                         ],
 
@@ -295,7 +451,11 @@ class _MerajState extends State<Meraj> {
                             ],
                           ),
                           child: Text(
-                            "$repeat مرة",
+                            "${repeat.toString().toArabicFormat()} ${(repeat == 0
+                                ? "مرة"
+                                : (repeat >= 3 && repeat <= 10) || (repeat > 100 && repeat % 100 >= 3 && repeat % 100 <= 10)
+                                ? "مرات"
+                                : "مرة")}",
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodySmall!
                                 .copyWith(color: Colors.black),

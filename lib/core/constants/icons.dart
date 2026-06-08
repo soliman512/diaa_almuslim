@@ -1,6 +1,6 @@
 class ConstIcons {
   static const String _path = "assets/icons";
-//app logo
+  //app logo
   static const String splashLogoName = 'assets/icons/ic_logo.png';
   static const String homeLogoName = 'assets/icons/ic_logo_home.png';
 
@@ -19,9 +19,15 @@ class ConstIcons {
   static const String sebha = "$_path/ic_sebha.png";
   static const String allahNames = "$_path/ic_allah_names.png";
   static const String meraj = "$_path/ic_meraj.png";
+  static const String hisnElmuslim = "$_path/ic_hisn_elmuslim.png";
+  static const String hisnElmuslimTitle = "$_path/ic_hisn_elmuslim_title.png";
+  static const String prayer = "$_path/ic_prayer.png";
+  static const String allahNamesTitle = "$_path/ic_waha.png";
+  static const String merajTitle = "$_path/ic_meraj_title.png";
 
   // Backgrounds / Shapes
   static const String homeHeader = "$_path/ic_home_header.png";
+  static const String homeHeader2 = "$_path/ic_home_header2.png";
   static const String backgroundShape = "$_path/ic_background_shape.png";
   static const String splashScreenBackgroundBottomShape =
       "$_path/ic_splash_bottom_shape.png";
@@ -42,6 +48,9 @@ class ConstIcons {
   static const String darkMode = 'assets/icons/ic_dark.png';
   static const String share = 'assets/icons/ic_share.png';
   static const String tiktok = 'assets/icons/ic_tiktok.png';
+  static const String leaf = 'assets/icons/ic_leaf.png';
+  static const String hisnAlmuslimCoverShape = 'assets/icons/ic_hisn_elmuslim_cover_shape.png';
+  static const String hisnAlmuslimCover2Shape = 'assets/icons/ic_hisn_elmuslim_cover2_shape.png';
   //control
   static const String nextZikr = "$_path/ic_next_zikr.png";
   static const String pastZikr = "$_path/ic_past_zikr.png";

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zad_almuslim/core/constants/colors.dart';
+import 'package:zad_almuslim/core/utils/numbers_to_ar_format.dart';
 
 class CounterButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -19,11 +20,11 @@ class CounterButton extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       label: Text(
-        label,
+        label.toArabicFormat(),
         style: TextStyle(
           color: ConstColors.mainColor,
           fontSize: 42,
-          fontFamily: 'exo',
+          fontFamily: 'cairo',
         ),
         textAlign: TextAlign.center,
       ),

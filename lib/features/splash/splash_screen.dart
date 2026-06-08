@@ -19,7 +19,10 @@ class _SplashScreenState extends State<SplashScreen> {
         _isVisible = true;
       });
     });
-    Future.delayed(Duration(milliseconds: 4000), () {
+    Future.delayed(Duration(milliseconds: 3000), () {
+      if (!mounted) {
+        return;
+      }
       Navigator.pushReplacementNamed(context, "/home");
     });
     super.initState();
@@ -42,7 +45,12 @@ class _SplashScreenState extends State<SplashScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 // mainAxisSize: MainAxisSize.max,
                 children: [
-                  Image.asset(ConstIcons.appLogo, width: 60),
+                  AnimatedRotation(
+                    turns: _isVisible ? 0 : .12,
+                    duration: const Duration(milliseconds: 1500),
+                    curve: Curves.easeOut,
+                    child: Image.asset(ConstIcons.appLogo, width: 60),
+                  ),
                   Image.asset(ConstIcons.splashLogoName, width: 120),
                   // Text(
                   //   ConstTexts.appName,
@@ -62,23 +70,23 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
           ),
           AnimatedPositioned(
-            duration: Duration(milliseconds: 2000),
+            duration: Duration(milliseconds: 1500),
             curve: Curves.easeOut,
-            bottom: _isVisible ? 0 : -200,
-            right: _isVisible ? 0 : -200,
+            bottom: _isVisible ? -40 : -200,
+            right: _isVisible ? -40 : -200,
             child: AnimatedOpacity(
-              duration: Duration(milliseconds: 2000),
+              duration: Duration(milliseconds: 1500),
               opacity: _isVisible ? 1 : 0.2,
               child: Image.asset(ConstIcons.splashScreenBackgroundBottomShape),
             ),
           ),
           AnimatedPositioned(
-            duration: Duration(milliseconds: 2000),
+            duration: Duration(milliseconds: 1500),
             curve: Curves.easeOut,
-            top: _isVisible ? 0 : -200,
-            left: _isVisible ? 0 : -200,
+            top: _isVisible ? -40 : -200,
+            left: _isVisible ? -40 : -200,
             child: AnimatedOpacity(
-              duration: Duration(milliseconds: 2000),
+              duration: Duration(milliseconds: 1500),
               opacity: _isVisible ? 0.5 : 0.2,
               child: Image.asset(
                 ConstIcons.splashScreenBackgroundTopShape,

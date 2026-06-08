@@ -19,13 +19,14 @@ class MyAppbar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.white,
       leading: showDrawer == true
           ? IconButton(
               onPressed: onPressDrawer,
               icon: Image.asset(ConstIcons.drawer, width: 26),
             )
           : null,
-          automaticallyImplyLeading: false,
+      automaticallyImplyLeading: false,
       title: Text(
         pageName,
         style: Theme.of(context).textTheme.titleLarge!.copyWith(fontSize: 24),

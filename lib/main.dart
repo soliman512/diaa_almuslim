@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zad_almuslim/core/themes/app_theme.dart';
-import 'package:zad_almuslim/features/allah_names/view/allah_names.dart';
-import 'package:zad_almuslim/features/meraj/view/meraj.dart';
-import 'package:zad_almuslim/features/morning_evening_azkar/view/morning_evening_azkar.dart';
-import 'package:zad_almuslim/features/sebha/view/sebha.dart';
-import 'package:zad_almuslim/features/splash/view/splash_screen.dart';
-import 'package:zad_almuslim/features/home/view/home.dart';
-import 'package:zad_almuslim/features/settings/view/settings.dart';
+import 'package:zad_almuslim/features/allah_names/allah_names.dart';
+import 'package:zad_almuslim/features/hisn_almuslim/hisn_almuslim.dart';
+import 'package:zad_almuslim/features/meraj/meraj.dart';
+import 'package:zad_almuslim/features/morning_evening_azkar/morning_evening_azkar.dart';
+import 'package:zad_almuslim/features/prayer_azkar/prayer_azkar.dart';
+import 'package:zad_almuslim/features/sebha/sebha.dart';
+import 'package:zad_almuslim/features/splash/splash_screen.dart';
+import 'package:zad_almuslim/features/home/home.dart';
+import 'package:zad_almuslim/features/settings/settings.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
 
@@ -83,15 +85,16 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       locale: const Locale('ar'),
-
+      useInheritedMediaQuery: true,
       // 2. These 3 lines are the "Engine" that flips the layout
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [Locale('ar')],
-      title: 'Zad Al-Muslim',
+      supportedLocales: const [Locale('ar', 'EG')],
+
+      title: 'Uns Al-Muslim',
       debugShowCheckedModeBanner: false,
 
       theme: AppTheme.lightModeTheme,
@@ -108,6 +111,9 @@ class _MyAppState extends State<MyApp> {
             AllahNames(fontSizeFactor: _getFontSize(_currentFontSize)),
         "/meraj": (context) =>
             Meraj(fontSizeFactor: _getFontSize(_currentFontSize)),
+        "/hisn_almuslim": (context) => HisnAlmuslim(),
+        "/prayer_azkar": (context) =>
+            PrayerAzkar(fontSizeFactor: _getFontSize(_currentFontSize)),
         "/settings": (context) => Settings(
           currentFontSize: _currentFontSize,
           onFontSizeChanged: changeFontSize,

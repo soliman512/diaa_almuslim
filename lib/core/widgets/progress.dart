@@ -7,10 +7,13 @@ class Porgress extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: CircularProgressIndicator(
-        backgroundColor: ConstColors.secondMainColor,
-        color: ConstColors.mainColor,
-        strokeWidth: 8,
+      child: SizedBox(
+        width: MediaQuery.sizeOf(context).width * .3,
+        height: MediaQuery.sizeOf(context).width * .3,
+        child: CircularProgressIndicator(
+          color: ConstColors.mainColor,
+          strokeWidth: 2,
+        ),
       ),
     );
   }

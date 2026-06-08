@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:zad_almuslim/core/constants/json_files.dart';
 
 class MerajLogic {
-  static const String _jsonFilePath = "assets/json/meraj.json";
+  static const String _jsonFilePath = ConstJsonFiles.meraj;
   static Future<List> loadData() async {
     try {
       final String jsonString = await rootBundle.loadString(_jsonFilePath);
