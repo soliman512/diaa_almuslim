@@ -1,57 +1,98 @@
-  <img src="https://i.ibb.co/MyBrbr4k/logo.png" alt="Uns Al-Muslim Title Logo" height="60"/>
-# 🌙 Dhiya Al Muslim | ضياء المسلم
+# 🌙 Diaa Almuslim (ضياء المسلم)
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" alt="Flutter" />
-  <img src="https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white" alt="Dart" />
-  <img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="License" />
-  <img src="https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=for-the-badge" alt="PRs Welcome" />
+  <img src="https://kommodo.ai/i/QbSXyK9ChmLa3YHxL3QG" alt="Diaa Almuslim Banner" width="100%">
 </p>
 
----
-
-## 📖 About / عن التطبيق
-
-**Dhiya Al Muslim (ضياء المسلم)** is a comprehensive, open-source Islamic application built using the **Flutter** framework. Designed with an authentic Islamic identity, it serves as a daily spiritual companion (Zad) featuring Prayer Times, the Holy Quran, Morning & Evening Azkar, Digital Tasbeeh, and much more.
-
-تطبيق **ضياء المسلم** هو تطبيق إسلامي شامل ومفتوح المصدر مبني باستخدام إطار العمل **Flutter**. يهدف التطبيق إلى تقديم هوية إسلامية أصيلة وتجربة استخدام هادئة وبسيطة ليكون رفيقك اليومي (زاد المسلم)، حيث يحتوي على مواقيت الصلاة، القرآن الكريم، أذكار الصباح والمساء، السبحة الإلكترونية، وغيرها من المميزات.
+**Diaa Almuslim** is a comprehensive, modern Islamic application built with **Flutter**, designed to provide Muslims with an elegant, fast, and distraction-free experience. The app combines essential daily Islamic tools in one place, helping users strengthen their connection with Allah through a clean interface inspired by Islamic identity and aesthetics.
 
 ---
 
-## ✨ Key Features | المميزات الرئيسية
+## ✨ Features
 
-* 🕌 **Islamic Identity & Aesthetic UI:** A clean, visually pleasing interface designed with an authentic Islamic look and feel.
-* ⏰ **Prayer Times (مواقيت الصلاة):** Accurate prayer schedules based on location to ensure you never miss a prayer.
-* 📖 **Holy Quran (القرآن الكريم):** Seamless access to read and reflect on the verses of the Holy Quran.
-* 🤲 **Morning & Evening Azkar (أذكار الصباح والمساء):** Thoughtfully structured daily remembrances and supplications for easy reading and tracking.
-* 📿 **Digital Tasbeeh (السبحة الإلكترونية):** An interactive and smooth counter to keep track of your daily Dhikr.
-* 🚫 **Ad-Free Experience:** A clean, minimalist user interface completely free of ads to keep you focused on worship.
-* ⚡ **Optimized Performance:** Fast, highly responsive, lightweight on resources, and low battery consumption.
+- 🕌 **Prayer Times**
+  - Accurate daily prayer times based on your location.
+  - Beautiful and intuitive prayer schedule.
+
+- 📖 **Holy Quran**
+  - Read the Holy Quran with a comfortable and elegant reading experience.
+  - Smooth navigation between Surahs.
+
+- 🌅 **Morning & Evening Azkar**
+  - Organized and easy-to-read daily remembrances.
+  - Progress tracking while reading.
+
+- 📿 **Digital Tasbih (Sebha)**
+  - Smart digital Tasbih with customizable Azkar.
+  - Save and manage your personal Tasbih sessions.
+
+- 🧭 **Qibla Direction**
+  - Find the Qibla direction accurately using your device sensors.
+
+- 🕌 **Nearby Mosques**
+  - Locate nearby mosques using an interactive map.
+
+- 🌙 **Allah's Beautiful Names**
+  - Explore the 99 Names of Allah with a beautiful interface.
+
+- 📅 **Hijri Calendar**
+  - Islamic date support and Hijri calendar integration.
+
+- 🎨 **Elegant Islamic Design**
+  - Premium UI inspired by Islamic art.
+  - Carefully crafted color palette and smooth animations.
+  - Light & Dark mode support.
+
+- ⚡ **Fast & Lightweight**
+  - Optimized for performance.
+  - Minimal battery and memory usage.
+  - Smooth experience across Android devices.
 
 ---
 
-## 🛠 Tech Stack & Architecture | التقنيات والمعمارية
+## 🛠️ Built With
 
-* **Framework:** [Flutter](https://flutter.dev/) (Dart Language)
-* **Architecture:** Clean Architecture with a clear separation of concerns between UI layers and business logic.
-* **Networking & APIs:** Integration with secure REST APIs for dynamic prayer time calculations and data retrieval.
-* **Local Storage:** Efficient state and offline caching for seamless user experience without internet connectivity.
+- **Flutter**
+- **Dart**
+- **Google Maps**
+- **REST APIs**
+- **Local Storage**
+- **Material Design 3**
 
 ---
 
-## 🚀 Getting Started | البدء والتشغيل
-
-Follow these steps to set up and run the project locally on your machine for development or testing:
+## 🚀 Getting Started
 
 ### Prerequisites
 
-Make sure you have the following installed on your system:
-* [Flutter SDK](https://docs.flutter.dev/get-started/install) (Stable Channel)
-* [Dart SDK](https://dart.dev/get-dart)
-* IDE: [VS Code](https://code.visualstudio.com/) or [Android Studio](https://developer.android.com/studio) with Flutter plugins installed.
+- Flutter SDK (Stable Channel)
+- Android Studio or VS Code
+- Android SDK
 
 ### Installation
 
-1. **Clone the repository:**
-   ```bash
-   git clone [https://github.com/your-username/dhiya-al-muslim.git](https://github.com/your-username/dhiya-al-muslim.git)
+```bash
+git clone https://github.com/your-username/diaa-almuslim.git
+cd diaa-almuslim
+
+flutter pub get
+flutter run
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are always welcome. Feel free to fork the repository and submit a pull request.
+
+---
+
+## 📜 License
+
+This project is released under the MIT License.
+
+---
+
+## ⭐ Support
+
+If you like this project, consider giving it a **⭐ Star** on GitHub. It helps support the project and encourages future development.
