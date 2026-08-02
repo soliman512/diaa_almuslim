@@ -1,4 +1,5 @@
 
+import 'package:diaa_almuslim/core/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,6 +22,9 @@ import 'package:diaa_almuslim/features/settings/settings.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final notificationService = NotificationService();
+  await notificationService.init();
+  await notificationService.requestPermissions();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   final prefs = await SharedPreferences.getInstance();
   final String savedFontSize = prefs.getString('font_size') ?? "متوسط";

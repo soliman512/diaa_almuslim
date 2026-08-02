@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:adhan/adhan.dart';
+import 'package:diaa_almuslim/core/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hijri_date/hijri_date.dart';
 import 'package:diaa_almuslim/core/constants/textes.dart';
@@ -9,7 +10,6 @@ import 'package:geolocator/geolocator.dart'
 import 'package:diaa_almuslim/core/utils/date_format.dart';
 import 'package:diaa_almuslim/core/models/prayer_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:diaa_almuslim/core/services/notification_service.dart';
 
 class HomeController extends ChangeNotifier {
   List<PrayerModel> initialPrayerTimes = [];
@@ -39,6 +39,7 @@ class HomeController extends ChangeNotifier {
     getHeaderAyah();
     getUserLocation();
     startTimer();
+    NotificationService().scheduleDailyAzkar();
   }
 
   //  Methods
@@ -70,7 +71,7 @@ class HomeController extends ChangeNotifier {
       PrayerModel(name: "المغرب", time: prayerTimes.maghrib),
       PrayerModel(name: "العشاء", time: prayerTimes.isha),
     ]);
-
+    NotificationService().schedulePrayers(initialPrayerTimes);
     getNextPrayer(lat, lng, params);
     sunrise = prayerTimes.sunrise;
     sunset = prayerTimes.maghrib;
@@ -218,7 +219,6 @@ class HomeController extends ChangeNotifier {
       }
     }
   }
-
 
   @override
   void dispose() {

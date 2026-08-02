@@ -37,138 +37,8 @@ class _MerajState extends State<Meraj> {
     });
   }
 
-  Future<void> _checkFirstTime() async {
-    final prefs = await SharedPreferences.getInstance();
-    bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
 
-    if (isFirstTime) {
-      _showWelcomeDialog();
 
-      await prefs.setBool('isFirstTime', false);
-    }
-  }
-
-  void _showWelcomeDialog() {
-    showDialog(
-      context: context,
-      barrierColor: Colors.transparent,
-      barrierDismissible: false,
-      builder: (context) => Material(
-        type: MaterialType.transparency,
-        child: Stack(
-          children: [
-            ColorFiltered(
-              colorFilter: ColorFilter.mode(
-                Colors.black.withValues(alpha: 0.8),
-                BlendMode.srcOut,
-              ),
-              child: Stack(
-                children: [
-                  // Container(color: Colors.transparent),
-                  Positioned(
-                    top: 70,
-                    left: 20,
-                    right: 20,
-                    child: Container(
-                      height: 210,
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            Positioned(
-              top: 70,
-              left: 20,
-              right: 20,
-              child: Container(
-                height: 210,
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  border: Border.all(
-                    color: context.isDarkMode
-                        ? ConstColors.goldAccent
-                        : ConstColors.primaryTeal,
-                    width: 2,
-                  ),
-                  borderRadius: BorderRadius.circular(40),
-                  boxShadow: [
-                    BoxShadow(
-                      color: ConstColors.goldAccent.withValues(alpha: 0.6),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                      blurStyle: BlurStyle.outer,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            Positioned(
-              top: 295,
-              left: 15,
-              right: 15,
-              bottom: 20,
-              child: Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        spacing: 10,
-                        children: [
-                          _buildHintCard(
-                            icon: Icons.touch_app_rounded,
-                            text:
-                                "يمكنك الضغط على الذكر لمعرفة تفاصيله أكثر وتعلمه",
-                          ),
-                          _buildHintCard(
-                            icon: Icons.speaker_notes_rounded,
-                            text: "اختر قول الذكر لقوله بالمرات المطلوبه",
-                          ),
-                          _buildHintCard(
-                            icon: Icons.done,
-                            text:
-                                "بعد الانتهاء ستجد ان الذكر قد تم تمييزه بعلامة الحفظ",
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: context.isDarkMode
-                          ? ConstColors.goldAccent
-                          : ConstColors.primaryTeal,
-                      minimumSize: const Size(150, 45),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                    ),
-                    child: const Text(
-                      "فهمت",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildHintCard({required IconData icon, required String text}) {
     return Card(
@@ -202,7 +72,6 @@ class _MerajState extends State<Meraj> {
   @override
   void initState() {
     loadAzkar();
-    _checkFirstTime();
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
     super.initState();

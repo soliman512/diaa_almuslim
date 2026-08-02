@@ -1,0 +1,5 @@
+{
+  "name": "Flutter Android",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "postCreateCommand": "sudo apt update && sudo apt install -y openjdk-21-jdk unzip wget && bash .devcontainer/setup-android.sh"
+}

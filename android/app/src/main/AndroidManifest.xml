@@ -8,6 +8,10 @@
         <data android:scheme="geo" />
     </intent>
 </queries>
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <application
         android:label="ضياء"
         android:name="${applicationName}"
