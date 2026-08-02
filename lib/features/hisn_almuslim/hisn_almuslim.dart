@@ -1,14 +1,13 @@
+import 'package:diaa_almuslim/core/utils/theme_mode_extension.dart';
+import 'package:diaa_almuslim/core/widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:zad_almuslim/core/constants/colors.dart';
-import 'package:zad_almuslim/core/constants/icons.dart';
-import 'package:zad_almuslim/core/services/app_actions_service.dart';
-import 'package:zad_almuslim/core/utils/numbers_to_ar_format.dart';
-import 'package:zad_almuslim/core/widgets/appbar.dart';
-import 'package:zad_almuslim/core/widgets/drawer.dart';
-import 'package:zad_almuslim/core/widgets/progress.dart';
-import 'package:zad_almuslim/core/widgets/special_body.dart';
-import 'package:zad_almuslim/features/hisn_almuslim/hisn_almuslim_logic.dart';
+import 'package:diaa_almuslim/core/constants/colors.dart';
+import 'package:diaa_almuslim/core/constants/icons.dart';
+import 'package:diaa_almuslim/core/utils/numbers_to_ar_format.dart';
+import 'package:diaa_almuslim/core/widgets/appbar.dart';
+import 'package:diaa_almuslim/core/widgets/progress.dart';
+import 'package:diaa_almuslim/core/widgets/special_body.dart';
+import 'package:diaa_almuslim/features/hisn_almuslim/hisn_almuslim_logic.dart';
 
 class HisnAlmuslim extends StatefulWidget {
   const HisnAlmuslim({super.key});
@@ -49,12 +48,17 @@ class _HisnAlmuslimState extends State<HisnAlmuslim> {
   void getData() async {
     try {
       data = await HisnAlmuslimLogic.getData();
+      if (!mounted) {
+        return;
+      }
       setState(() {
         isLoading = false;
       });
     } catch (e) {
-      AppActionsService.showErrorSnackBar(context, e.toString());
-      print(e);
+      if (!mounted) {
+        return;
+      }
+      // AppActionsService.showErrorSnackBar(context, e.toString());
     }
   }
 
@@ -127,14 +131,11 @@ class _HisnAlmuslimState extends State<HisnAlmuslim> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       key: scaffoldState,
       extendBodyBehindAppBar: true,
-      appBar: MyAppbar(
-        pageName: "",
-        onPressDrawer: () => scaffoldState.currentState!.openDrawer(),
-      ),
-      drawer: AppDrawer(),
+      appBar: const MyAppbar(pageName: "", showSettingsButton: true),
+
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       floatingActionButton: ValueListenableBuilder(
         valueListenable: _showFloatingActionButton,
@@ -155,9 +156,11 @@ class _HisnAlmuslimState extends State<HisnAlmuslim> {
 
               FocusScope.of(context).requestFocus(_searchFocusNode);
             },
-            foregroundColor: Colors.white,
+            foregroundColor: context.isDarkMode
+                ? ConstColors.primaryTeal
+                : ConstColors.goldAccent,
             backgroundColor: ConstColors.deepOrange,
-            child: Icon(Icons.search_rounded),
+            child: const Icon(Icons.search_rounded),
           ),
         ),
       ),
@@ -167,7 +170,7 @@ class _HisnAlmuslimState extends State<HisnAlmuslim> {
           ValueListenableBuilder(
             valueListenable: _topPositionNotifier,
             builder: (context, _, child) => AnimatedPositioned(
-              duration: Duration(milliseconds: 500),
+              duration: const Duration(milliseconds: 500),
               curve: Curves.easeInOut,
               left: 80,
               right: 80,
@@ -180,42 +183,39 @@ class _HisnAlmuslimState extends State<HisnAlmuslim> {
           ),
           SpecialBody(
             body: isLoading
-                ? Porgress()
+                ? const Porgress()
                 : CustomScrollView(
                     controller: _scrollController,
                     slivers: [
                       SliverToBoxAdapter(
                         child: Column(
                           children: [
-                            SizedBox(height: 120),
-                            Container(
-                              decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.white10,
-                                    blurRadius: 100,
-                                  ),
-                                ],
-                              ),
-                              child: Image.asset(
-                                ConstIcons.hisnElmuslimTitle,
-                                width: 260,
-                              ),
+                            const SizedBox(height: 120),
+                            Image.asset(
+                              ConstIcons.hisnElmuslimTitle,
+                              width: 260,
+                              color: context.isDarkMode
+                                  ? ConstColors.goldAccent
+                                  : ConstColors.primaryTeal,
                             ),
                             Opacity(
                               opacity: .8,
                               child: Text(
                                 (data["المقدمة"]["footnote"] as List).reversed
                                     .join("\n"),
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium!.copyWith(height: 2),
+                                style: Theme.of(context).textTheme.bodyMedium!
+                                    .copyWith(
+                                      height: 2,
+                                      color: context.isDarkMode
+                                          ? ConstColors.goldAccent
+                                          : ConstColors.primaryTeal,
+                                    ),
 
                                 textAlign: TextAlign.center,
                               ),
                             ),
-                            Divider(),
-                            SizedBox(height: 40),
+                            const Divider(),
+                            const SizedBox(height: 40),
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
@@ -231,10 +231,12 @@ class _HisnAlmuslimState extends State<HisnAlmuslim> {
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: ConstColors.deepOrange,
-                                  padding: EdgeInsets.symmetric(vertical: 16),
+                                  backgroundColor: ConstColors.primaryTeal,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
                                 ),
-                                child: Text(
+                                child: const Text(
                                   "الذهاب للمحتوى مباشرة",
                                   style: TextStyle(
                                     color: Colors.white,
@@ -243,7 +245,7 @@ class _HisnAlmuslimState extends State<HisnAlmuslim> {
                                 ),
                               ),
                             ),
-                            SizedBox(height: 40),
+                            const SizedBox(height: 40),
                             (() {
                               final introList = data["المقدمة"]["text"] as List;
                               final basmalah = introList[0].toString();
@@ -290,7 +292,9 @@ class _HisnAlmuslimState extends State<HisnAlmuslim> {
                                       child: Text(
                                         value ? "المختصر" : "الإظهار كاملََا",
                                         style: TextStyle(
-                                          color: ConstColors.deepOrange,
+                                          color: context.isDarkMode
+                                              ? ConstColors.goldAccent
+                                              : ConstColors.primaryTeal,
                                           decoration: TextDecoration.underline,
                                           decorationStyle:
                                               TextDecorationStyle.dotted,
@@ -302,7 +306,7 @@ class _HisnAlmuslimState extends State<HisnAlmuslim> {
                               );
                             })(),
                             Text(
-                              "المحتوى بعد الفضل مباشرة",
+                              "المحتوى بعد فضل الذكر مباشرة",
                               style: Theme.of(context).textTheme.bodySmall!
                                   .copyWith(fontSize: 10, color: Colors.grey),
                               textAlign: TextAlign.center,
@@ -317,7 +321,7 @@ class _HisnAlmuslimState extends State<HisnAlmuslim> {
                                   ),
                               textAlign: TextAlign.center,
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             ...List.generate(
                               (data["فضل الذكر"]["text"] as List).length,
                               (index) {
@@ -327,31 +331,32 @@ class _HisnAlmuslimState extends State<HisnAlmuslim> {
                                     data["فضل الذكر"]["footnote"][index]
                                         .toString();
                                 return Card(
-                                  color: ConstColors.mainColor,
+                                  color: ConstColors.primaryTeal,
                                   child: ListTile(
                                     leading: CircleAvatar(
-                                      backgroundColor: Colors.white24,
-                                      foregroundColor: Colors.white,
+                                      backgroundColor: ConstColors.goldAccent
+                                          .withValues(alpha: .08),
+                                      foregroundColor: ConstColors.goldAccent,
                                       child: Text(
                                         (index + 1).toString().toArabicFormat(),
-                                        style: TextStyle(fontSize: 22),
+                                        style: const TextStyle(fontSize: 22),
                                       ),
                                     ),
                                     title: Text(
                                       text,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 14,
                                         height: 1.6,
-                                        color: Colors.white,
+                                        color: ConstColors.goldAccent,
                                       ),
                                     ),
                                     subtitle: Padding(
                                       padding: const EdgeInsets.only(top: 8),
                                       child: Text(
                                         footnote,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 10,
-                                          color: ConstColors.secondMainColor,
+                                          color: ConstColors.goldAccent,
                                         ),
                                       ),
                                     ),
@@ -360,38 +365,54 @@ class _HisnAlmuslimState extends State<HisnAlmuslim> {
                               },
                             ),
                             line(),
-                            SizedBox(height: 40),
+                            const SizedBox(height: 40),
                             TextField(
                               key: _searchWidgetKey,
                               controller: searchController,
                               onChanged: _filterAzkar,
                               focusNode: _searchFocusNode,
-                              cursorColor: ConstColors.deepOrange,
+                              cursorColor: context.isDarkMode
+                                  ? ConstColors.goldAccent
+                                  : ConstColors.primaryTeal,
                               keyboardType: TextInputType.text,
                               textInputAction: TextInputAction.search,
                               decoration: InputDecoration(
                                 hintText: "ما الذي تريد معرفته",
 
-                                hintStyle: TextStyle(color: Colors.black54),
-                                fillColor: ConstColors.deepOrange.withOpacity(
-                                  .08,
+                                hintStyle: TextStyle(
+                                  color: context.isDarkMode
+                                      ? ConstColors.goldAccent
+                                      : ConstColors.primaryTeal,
                                 ),
+                                fillColor: context.isDarkMode
+                                    ? ConstColors.goldAccent.withValues(
+                                        alpha: .08,
+                                      )
+                                    : ConstColors.primaryTeal.withValues(
+                                        alpha: .08,
+                                      ),
                                 filled: true,
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: ConstColors.deepOrange,
+                                    color: context.isDarkMode
+                                        ? ConstColors.goldAccent
+                                        : ConstColors.primaryTeal,
                                   ),
                                   borderRadius: BorderRadius.circular(40),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: ConstColors.deepOrange,
+                                    color: context.isDarkMode
+                                        ? ConstColors.goldAccent
+                                        : ConstColors.primaryTeal,
                                   ),
                                   borderRadius: BorderRadius.circular(40),
                                 ),
                                 prefixIcon: Icon(
                                   Icons.search_rounded,
-                                  color: ConstColors.deepOrange,
+                                  color: context.isDarkMode
+                                      ? ConstColors.goldAccent
+                                      : ConstColors.primaryTeal,
                                   size: 28,
                                 ),
                                 suffixIcon:
@@ -405,14 +426,14 @@ class _HisnAlmuslimState extends State<HisnAlmuslim> {
                                                     searchController.clear();
                                                   });
                                                 },
-                                                icon: Icon(Icons.close),
+                                                icon: const Icon(Icons.close),
                                               )
                                             : const SizedBox.shrink();
                                       },
                                     ),
                               ),
                             ),
-                            SizedBox(height: 40),
+                            const SizedBox(height: 40),
                           ],
                         ),
                       ),
@@ -426,7 +447,9 @@ class _HisnAlmuslimState extends State<HisnAlmuslim> {
                       //     style: Theme.of(context).textTheme.bodyMedium!
                       //         .copyWith(
                       //           fontWeight: FontWeight.bold,
-                      //           color: ConstColors.mainColor,
+                      //           color: Context.isDarkMode
+                      // ? ConstColors.goldAccent
+                      // :ConstColors.primaryTeal,
                       //           fontSize: 18,
                       //         ),
                       //   ),
@@ -439,6 +462,7 @@ class _HisnAlmuslimState extends State<HisnAlmuslim> {
                         data: data,
                         filteredAzkarNotifier: _filteredAzkarNotifier,
                         checkIsUserTyping: searchController,
+                        context: context,
                       ),
                     ],
                   ),
@@ -450,20 +474,23 @@ class _HisnAlmuslimState extends State<HisnAlmuslim> {
 }
 
 Widget line() {
-  return Column(children: [Divider(), SizedBox(height: 16)]);
+  return const Column(children: [Divider(), SizedBox(height: 16)]);
 }
 
+// ignore: must_be_immutable
 class Azkar extends StatelessWidget {
   final List<MapEntry<String, dynamic>> azkarEntires;
   dynamic data;
   ValueNotifier<List<MapEntry<String, dynamic>>> filteredAzkarNotifier =
       ValueNotifier<List<MapEntry<String, dynamic>>>([]);
   TextEditingController checkIsUserTyping = TextEditingController();
+  BuildContext context;
   Azkar({
     super.key,
     required this.data,
     required this.filteredAzkarNotifier,
     required this.checkIsUserTyping,
+    required this.context,
   }) : azkarEntires = (data as Map<String, dynamic>).entries.toList().sublist(
          2,
        );
@@ -479,13 +506,18 @@ class Azkar extends StatelessWidget {
             : (data as Map<String, dynamic>).entries.toList().sublist(2);
 
         if (checkIsUserTyping.text.trim().isNotEmpty && !isSearching) {
-          return const SliverToBoxAdapter(
+          return SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.all(32.0),
+              padding: const EdgeInsets.all(32.0),
               child: Center(
                 child: Text(
                   "لا توجد نتائج مطابقة للبحث",
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: context.isDarkMode
+                        ? ConstColors.goldAccent
+                        : ConstColors.primaryTeal,
+                  ),
                 ),
               ),
             ),
@@ -504,33 +536,48 @@ class Azkar extends StatelessWidget {
               final List<dynamic> footnotes = zikrContent["footnote"];
 
               return Padding(
-                padding: EdgeInsets.symmetric(horizontal: 0, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 0,
+                  vertical: 14,
+                ),
                 child: ExpansionTile(
                   //opend
-                  backgroundColor: const Color.fromARGB(242, 233, 233, 233),
+                  backgroundColor: Colors.transparent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
-                    side: BorderSide(color: ConstColors.mainColor, width: 1.5),
+                    side: BorderSide(
+                      color: context.isDarkMode
+                          ? ConstColors.goldAccent
+                          : ConstColors.primaryTeal,
+                      width: 1.5,
+                    ),
                   ),
-                  iconColor: ConstColors.mainColor,
-                  textColor: ConstColors.mainColor,
+                  iconColor: context.isDarkMode
+                      ? ConstColors.goldAccent
+                      : ConstColors.primaryTeal,
+                  textColor: context.isDarkMode
+                      ? ConstColors.goldAccent
+                      : ConstColors.primaryTeal,
 
                   //closed
-                  collapsedTextColor: Colors.white,
-                  collapsedBackgroundColor: ConstColors.mainColor,
-                  collapsedIconColor: ConstColors.secondMainColor,
+                  collapsedTextColor: ConstColors.goldAccent,
+                  collapsedBackgroundColor: ConstColors.primaryTeal,
+                  collapsedIconColor: ConstColors.goldAccent,
                   collapsedShape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
                   title: Text(
-                    "${index + 1} - $zikrTitle".toArabicFormat(),
+                    zikrTitle,
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
+                      // fontWeight: FontWeight.bold,
+                      // fontFamily: "arsura",
                       fontSize: 16,
                     ),
                   ),
                   children: [
-                    Divider(),
+                     Divider(color: context.isDarkMode
+                          ? Colors.white12
+                          : Colors.black12,),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16.0,
@@ -554,9 +601,11 @@ class Azkar extends StatelessWidget {
                                     style: TextStyle(
                                       fontSize: 20,
                                       height: 2,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: "uthman",
-                                      color: ConstColors.mainColor,
+                                      // fontWeight: FontWeight.bold,
+                                      fontFamily: "arsura",
+                                      color: context.isDarkMode
+                                          ? Colors.white
+                                          : Colors.black,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -565,9 +614,14 @@ class Azkar extends StatelessWidget {
                                   if (footnotes.length > subIndex)
                                     Text(
                                       footnotes[subIndex].toString(),
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodySmall,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall!
+                                          .copyWith(
+                                            color: context.isDarkMode
+                                                ? ConstColors.goldAccent
+                                                : ConstColors.primaryTeal,
+                                          ),
                                       textAlign: TextAlign.center,
                                     ),
                                 ],

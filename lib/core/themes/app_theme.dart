@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:zad_almuslim/core/constants/colors.dart';
+import 'package:diaa_almuslim/core/constants/colors.dart';
 
 class AppTheme {
   static const String appFont = 'el-messiri';
@@ -16,7 +16,7 @@ class AppTheme {
     scaffoldBackgroundColor: ConstColors.lightMode,
 
     fontFamily: 'el-messiri',
-    appBarTheme: AppBarTheme(
+    appBarTheme:const AppBarTheme(
       toolbarHeight: 80,
       elevation: 0,
       surfaceTintColor: ConstColors.lightMode,
@@ -29,12 +29,12 @@ class AppTheme {
         statusBarBrightness: Brightness.light, // For iOS
       ),
     ),
-    textTheme: TextTheme(
+    textTheme:const TextTheme(
       titleLarge: TextStyle(fontSize: 34, color: ConstColors.mainColor),
-      titleMedium: TextStyle(fontSize: 22, color: Colors.white),
-      bodySmall: TextStyle(fontSize: 12),
-      bodyMedium: TextStyle(fontSize: 16),
-      bodyLarge: TextStyle(fontSize: 18),
+      titleMedium:  TextStyle(fontSize: 22, color: Colors.white),
+      bodySmall:  TextStyle(fontSize: 12),
+      bodyMedium:  TextStyle(fontSize: 16),
+      bodyLarge:  TextStyle(fontSize: 18),
     ),
   );
 
@@ -48,7 +48,7 @@ class AppTheme {
     ),
     scaffoldBackgroundColor: ConstColors.darkMode,
     fontFamily: 'el-messiri',
-    appBarTheme: AppBarTheme(
+    appBarTheme:const AppBarTheme(
       toolbarHeight: 80,
       surfaceTintColor: ConstColors.darkMode,
 
@@ -61,12 +61,12 @@ class AppTheme {
         statusBarBrightness: Brightness.dark, // For iOS
       ),
     ),
-    textTheme: TextTheme(
+    textTheme:const TextTheme(
       titleLarge: TextStyle(fontSize: 34, color: ConstColors.mainColor),
-      titleMedium: TextStyle(fontSize: 22, color: Colors.white),
-      bodySmall: TextStyle(fontSize: 12),
-      bodyMedium: TextStyle(fontSize: 16),
-      bodyLarge: TextStyle(fontSize: 18),
+      titleMedium:  TextStyle(fontSize: 22, color: Colors.white),
+      bodySmall:  TextStyle(fontSize: 12),
+      bodyMedium:  TextStyle(fontSize: 16),
+      bodyLarge:  TextStyle(fontSize: 18),
     ),
   );
 }

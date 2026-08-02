@@ -1,59 +1,62 @@
 class ConstIcons {
   static const String _path = "assets/icons";
-  //app logo
-  static const String splashLogoName = 'assets/icons/ic_logo.png';
-  static const String homeLogoName = 'assets/icons/ic_logo_home.png';
 
-  // Navigation & Status
-  static const String appLogo = "$_path/logo.png";
-  static const String appbarLogo = "$_path/ic_appbar_logo.png";
-  static const String sun = "$_path/ic_sun.png";
-  static const String moon = "$_path/ic_moon.png";
-  static const String settings = "$_path/ic_settings.png";
-  static const String go = "$_path/ic_go.png";
-  static const String back = "$_path/ic_appbar_back.png";
-  static const String drawer = "$_path/ic_appbar_drawer.png";
-
-  // Main Buttons
-  static const String azkar = "$_path/ic_azkar.png";
-  static const String sebha = "$_path/ic_sebha.png";
-  static const String allahNames = "$_path/ic_allah_names.png";
-  static const String meraj = "$_path/ic_meraj.png";
-  static const String hisnElmuslim = "$_path/ic_hisn_elmuslim.png";
-  static const String hisnElmuslimTitle = "$_path/ic_hisn_elmuslim_title.png";
-  static const String prayer = "$_path/ic_prayer.png";
-  static const String allahNamesTitle = "$_path/ic_waha.png";
-  static const String merajTitle = "$_path/ic_meraj_title.png";
-
-  // Backgrounds / Shapes
-  static const String homeHeader = "$_path/ic_home_header.png";
-  static const String homeHeader2 = "$_path/ic_home_header2.png";
-  static const String backgroundShape = "$_path/ic_background_shape.png";
-  static const String splashScreenBackgroundBottomShape =
-      "$_path/ic_splash_bottom_shape.png";
-  static const String splashScreenBackgroundTopShape =
-      "$_path/ic_splash_top_shape.png";
-  static const String zikrNumber = "$_path/ic_zikr_number.png";
-  static const String drawerBackgroundBottomShape =
-      "$_path/ic_drawer_bottom_shape.png";
-  static const String check = "$_path/ic_check.png";
-  static const String allahNameBox = "$_path/ic_allah_name_box.svg";
-  static const String allahNameTitleBox = "$_path/ic_allah_name_title_box.png";
-  static const String confirmUserZikr = "$_path/ic_confirm_zikr.png";
-  static const String textSize = "$_path/ic_text_size.png";
-  static const String sendNotes = "$_path/ic_send_notes.png";
-  static const String rateUs = "$_path/ic_rate_us.png";
-  static const String confirmSendNotes = "$_path/ic_confirm_send_notes.png";
-  static const String islamicMandala = 'assets/icons/ic_islamic_mandala.png';
-  static const String darkMode = 'assets/icons/ic_dark.png';
-  static const String share = 'assets/icons/ic_share.png';
-  static const String tiktok = 'assets/icons/ic_tiktok.png';
-  static const String leaf = 'assets/icons/ic_leaf.png';
-  static const String hisnAlmuslimCoverShape = 'assets/icons/ic_hisn_elmuslim_cover_shape.png';
-  static const String hisnAlmuslimCover2Shape = 'assets/icons/ic_hisn_elmuslim_cover2_shape.png';
-  //control
-  static const String nextZikr = "$_path/ic_next_zikr.png";
-  static const String pastZikr = "$_path/ic_past_zikr.png";
-  static const String changeAppearnceMode =
-      "$_path/ic_change_appearnce_mood.png";
+  
+  static const String splashLightLogo =
+      '$_path/ic_native_splash_light_logo.webp';
+  static const String appLogo = "$_path/logo.webp";
+  static const String sun = "$_path/ic_sun.webp";
+  static const String moon = "$_path/ic_moon.webp";
+  static const String settings = "$_path/ic_settings.webp";
+  static const String back = "$_path/ic_appbar_back.webp";
+  static const String quran = "$_path/ic_quran.webp";
+  
+  static const String kaaba = "$_path/ic_kaaba.webp";
+  static const String nearestMosque = "$_path/ic_near_mosque.webp";
+  static const String moonPhase = "$_path/ic_moon_stats.webp";
+  static const String morningEveningAzkar =
+      "$_path/ic_mornin_evening_azkar.webp";
+  static const String sebha = "$_path/ic_sebha.webp";
+  static const String sebhaBox = "$_path/ic_sebha_box.webp";
+  static const String allahNames = "$_path/ic_allah_names.webp";
+  static const String meraj = "$_path/ic_meraj.webp";
+  static const String hisnElmuslim = "$_path/ic_hisn_elmuslim.webp";
+  static const String hisnElmuslimTitle = "$_path/ic_hisn_elmuslim_title.webp";
+  static const String prayer = "$_path/ic_prayer.webp";
+  static const String homeHeader = "$_path/ic_home_header2.webp";
+  static const String backgroundShape = "$_path/ic_background_shape.webp";
+  static const String mainButtonShape = "$_path/ic_main_button_shape.webp";
+  static const String zikrNumber = "$_path/ic_zikr_number.webp";
+  static const String check = "$_path/ic_check.webp";
+  static const String allahNameBox = "$_path/ic_allah_name_box.webp";
+  static const String confirmUserZikr = "$_path/ic_confirm_zikr.webp";
+  static const String textSize = "$_path/ic_text_size.webp";
+  static const String sendNotes = "$_path/ic_send_notes.webp";
+  static const String rateUs = "$_path/ic_rate_us.webp";
+  static const String confirmSendNotes = "$_path/ic_confirm_send_notes.webp";
+  static const String islamicMandala = '$_path/ic_islamic_mandala.webp';
+  static const String darkMode = '$_path/ic_dark.webp';
+  static const String share = '$_path/ic_share.webp';
+  static const String tiktok = '$_path/ic_tiktok.webp';
+  static const String hisnAlmuslimCoverShape =
+      '$_path/ic_hisn_elmuslim_cover_shape.webp';
+  static const String sunFull = '$_path/ic_sunfull.webp';
+  static const String mosque = '$_path/ic_mosque.webp';
+  static const String realMoon = '$_path/ic_moon_phase.webp';
+  static const String realMosque = '$_path/ic_real_mosque.webp';
+  static const String manualKaabaDirection =
+      '$_path/ic_manual_kaaba_direction.webp';
+  static const String kaabaLocation = '$_path/ic_kaaba_compass.webp';
+  static const String autoKaabaDirection =
+      '$_path/ic_autol_kaaba_direction.webp';
+  static const String surahNumBox = '$_path/ic_surah_number_home.webp';
+  static const String makkah = '$_path/ic_makkah.webp';
+  static const String madinah = '$_path/ic_madinah.webp';
+  static const String surahHeader = '$_path/ic_surah_header.webp';
+  static const String blackBasmallah = '$_path/ic_black_basmallah.webp';
+  static const String allahNamesPageTitle = '$_path/ic_allah_names_title.webp';
+  static const String lightQuranCover = '$_path/ic_light_quran_cover.webp';
+  static const String darkQuranCover = '$_path/ic_dark_quran_cover.webp';
+  static const String nearestMosqueMain = '$_path/ic_near_mosque_main.webp';
+  static const String nextZikr = "$_path/ic_next_zikr.webp";
 }

@@ -1,6 +1,8 @@
+import 'package:diaa_almuslim/core/utils/theme_mode_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:zad_almuslim/core/constants/colors.dart';
-import 'package:zad_almuslim/core/constants/icons.dart';
+import 'package:diaa_almuslim/core/constants/colors.dart';
+import 'package:diaa_almuslim/core/constants/icons.dart';
+import 'package:diaa_almuslim/core/constants/textes.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,12 +16,16 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    Future.delayed(Duration(milliseconds: 20), () {
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (!mounted) {
+        return;
+      }
       setState(() {
         _isVisible = true;
       });
     });
-    Future.delayed(Duration(milliseconds: 3000), () {
+
+    Future.delayed(const Duration(milliseconds: 1000), () {
       if (!mounted) {
         return;
       }
@@ -30,70 +36,98 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // bool context.isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    double screenHeight = MediaQuery.sizeOf(context).height;
+    double screenWidth = MediaQuery.sizeOf(context).width;
+    // _isVisible = true;
     return Scaffold(
       body: Stack(
         children: [
+          SizedBox(
+            width: screenWidth,
+            height: screenHeight,
+            child: Image.asset(ConstIcons.realMosque, fit: BoxFit.cover),
+          ),
           Container(
-            // alignment: Alignment.center,
-            width: double.infinity,
-            height: MediaQuery.sizeOf(context).height,
-            decoration: BoxDecoration(gradient: ConstColors.mainGradientColor),
-            child: AnimatedOpacity(
-              duration: Duration(milliseconds: 2000),
-              opacity: _isVisible ? 1 : 0,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                // mainAxisSize: MainAxisSize.max,
-                children: [
-                  AnimatedRotation(
-                    turns: _isVisible ? 0 : .12,
-                    duration: const Duration(milliseconds: 1500),
-                    curve: Curves.easeOut,
-                    child: Image.asset(ConstIcons.appLogo, width: 60),
-                  ),
-                  Image.asset(ConstIcons.splashLogoName, width: 120),
-                  // Text(
-                  //   ConstTexts.appName,
-                  //   style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                  //     color: Colors.white,
-                  //     shadows: [
-                  //       Shadow(
-                  //         color: Colors.black38,
-                  //         offset: Offset(0, 8),
-                  //         blurRadius: 8,
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                ],
-              ),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 13, 46, 51).withValues(alpha: .94),
             ),
           ),
-          AnimatedPositioned(
-            duration: Duration(milliseconds: 1500),
-            curve: Curves.easeOut,
-            bottom: _isVisible ? -40 : -200,
-            right: _isVisible ? -40 : -200,
-            child: AnimatedOpacity(
-              duration: Duration(milliseconds: 1500),
-              opacity: _isVisible ? 1 : 0.2,
-              child: Image.asset(ConstIcons.splashScreenBackgroundBottomShape),
-            ),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 600),
+            color: _isVisible
+                ? Colors.transparent
+                : context.isDarkMode
+                ? const Color(0xff0D0D0E)
+                : const Color(0xffFBF5F3),
           ),
-          AnimatedPositioned(
-            duration: Duration(milliseconds: 1500),
-            curve: Curves.easeOut,
-            top: _isVisible ? -40 : -200,
-            left: _isVisible ? -40 : -200,
-            child: AnimatedOpacity(
-              duration: Duration(milliseconds: 1500),
-              opacity: _isVisible ? 0.5 : 0.2,
+
+          Center(
+            child: SizedBox(
+              width: screenWidth * .8,
               child: Image.asset(
-                ConstIcons.splashScreenBackgroundTopShape,
-                width: 240,
+                ConstIcons.splashLightLogo,
+                color: ConstColors.goldAccent,
+                fit: BoxFit.contain,
               ),
             ),
           ),
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 600),
+
+            bottom: _isVisible ? 18 : 0,
+            left: 0,
+            right: 0,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 600),
+
+              opacity: _isVisible ? 1 : 0,
+              child: Text(
+                "${ConstTexts.appName} المـسـلــم",
+                style:const TextStyle(
+                  color: ConstColors.goldAccent,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          SizedBox(height: screenHeight * .05),
+
+          // Container(
+          //   // alignment: Alignment.center,
+          //   width: double.infinity,
+          //   height: MediaQuery.sizeOf(context).height,
+          //   decoration: BoxDecoration(gradient: ConstColors.mainGradientColor),
+          //   child: SizedBox(
+
+          //     child: Image.asset(ConstIcons.appLogo, width: 60)),
+          // ),
+          // AnimatedPositioned(
+          //   duration: Duration(milliseconds: 1500),
+          //   curve: Curves.easeOut,
+          //   bottom: _isVisible ? -40 : -200,
+          //   right: _isVisible ? -40 : -200,
+          //   child: AnimatedOpacity(
+          //     duration: Duration(milliseconds: 1500),
+          //     opacity: _isVisible ? 1 : 0.2,
+          //     child: Image.asset(ConstIcons.splashScreenBackgroundBottomShape),
+          //   ),
+          // ),
+          // AnimatedPositioned(
+          //   duration: Duration(milliseconds: 1500),
+          //   curve: Curves.easeOut,
+          //   top: _isVisible ? -40 : -200,
+          //   left: _isVisible ? -40 : -200,
+          //   child: AnimatedOpacity(
+          //     duration: Duration(milliseconds: 1500),
+          //     opacity: _isVisible ? 0.5 : 0.2,
+          //     child: Image.asset(
+          //       ConstIcons.splashScreenBackgroundTopShape,
+          //       width: 240,
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

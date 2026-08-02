@@ -1,17 +1,23 @@
+
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zad_almuslim/core/themes/app_theme.dart';
-import 'package:zad_almuslim/features/allah_names/allah_names.dart';
-import 'package:zad_almuslim/features/hisn_almuslim/hisn_almuslim.dart';
-import 'package:zad_almuslim/features/meraj/meraj.dart';
-import 'package:zad_almuslim/features/morning_evening_azkar/morning_evening_azkar.dart';
-import 'package:zad_almuslim/features/prayer_azkar/prayer_azkar.dart';
-import 'package:zad_almuslim/features/sebha/sebha.dart';
-import 'package:zad_almuslim/features/splash/splash_screen.dart';
-import 'package:zad_almuslim/features/home/home.dart';
-import 'package:zad_almuslim/features/settings/settings.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:diaa_almuslim/core/themes/app_theme.dart';
+import 'package:diaa_almuslim/features/al_quran/al_quran.dart';
+import 'package:diaa_almuslim/features/allah_names/allah_names.dart';
+import 'package:diaa_almuslim/features/hisn_almuslim/hisn_almuslim.dart';
+import 'package:diaa_almuslim/features/meraj/meraj.dart';
+import 'package:diaa_almuslim/features/moon_phase/moon_phase.dart';
+import 'package:diaa_almuslim/features/morning_evening_azkar/morning_evening_azkar.dart';
+import 'package:diaa_almuslim/features/nearest_mosque/nearest_mosque.dart';
+import 'package:diaa_almuslim/features/prayer_azkar/prayer_azkar.dart';
+import 'package:diaa_almuslim/features/qibla/qibla.dart';
+import 'package:diaa_almuslim/features/sebha/sebha.dart';
+import 'package:diaa_almuslim/features/splash/splash_screen.dart';
+import 'package:diaa_almuslim/features/home/home.dart';
+import 'package:diaa_almuslim/features/settings/settings.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -83,57 +89,67 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      locale: const Locale('ar'),
-      useInheritedMediaQuery: true,
-      // 2. These 3 lines are the "Engine" that flips the layout
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [Locale('ar', 'EG')],
+    return ScreenUtilInit(
+      designSize: const Size(392.72727272727275, 800.7272727272727),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return MaterialApp(
+          locale: const Locale('ar'),
+          useInheritedMediaQuery: true,
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('ar', 'EG')],
 
-      title: 'Uns Al-Muslim',
-      debugShowCheckedModeBanner: false,
+          title: 'ضياء',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightModeTheme,
+          darkTheme: AppTheme.darkModeTheme,
+          themeMode: _currentThemeMode,
+          initialRoute: "/splash",
+          routes: {
+            "/splash": (context) => const SplashScreen(),
+            "/home": (context) => const Home(),
+            "/al_quran": (context) =>
+                AlQuran(fontSizeFactor: _getFontSize(_currentFontSize)),
+            "/morning_evening_azkar": (context) => MorningEveningAzkar(
+              fontSizeFactor: _getFontSize(_currentFontSize),
+            ),
+            "/sebha": (context) => const Sebha(),
+            "/allah_names": (context) =>
+                AllahNames(fontSizeFactor: _getFontSize(_currentFontSize)),
+            "/meraj": (context) =>
+                Meraj(fontSizeFactor: _getFontSize(_currentFontSize)),
+            "/hisn_almuslim": (context) => const HisnAlmuslim(),
+            "/moon_phase": (context) =>
+                MoonPhaseScreen(fontSizeFactor: _getFontSize(_currentFontSize)),
+            "/nearest_mosque": (context) =>
+                NearestMosque(fontSizeFactor: _getFontSize(_currentFontSize)),
+            "/qibla": (context) => const Qibla(),
+            "/prayer_azkar": (context) =>
+                PrayerAzkar(fontSizeFactor: _getFontSize(_currentFontSize)),
+            "/settings": (context) => Settings(
+              currentFontSize: _currentFontSize,
+              onFontSizeChanged: changeFontSize,
+              currentMode: _currentThemeMode,
+              onThemeChanged: changeTheme,
+            ),
+          },
 
-      theme: AppTheme.lightModeTheme,
-      darkTheme: AppTheme.darkModeTheme,
-      themeMode: _currentThemeMode,
-      initialRoute: "/splash",
-      routes: {
-        "/splash": (context) => SplashScreen(),
-        "/home": (context) => Home(),
-        "/morning_evening_azkar": (context) =>
-            MorningEveningAzkar(fontSizeFactor: _getFontSize(_currentFontSize)),
-        "/sebha": (context) => Sebha(),
-        "/allah_names": (context) =>
-            AllahNames(fontSizeFactor: _getFontSize(_currentFontSize)),
-        "/meraj": (context) =>
-            Meraj(fontSizeFactor: _getFontSize(_currentFontSize)),
-        "/hisn_almuslim": (context) => HisnAlmuslim(),
-        "/prayer_azkar": (context) =>
-            PrayerAzkar(fontSizeFactor: _getFontSize(_currentFontSize)),
-        "/settings": (context) => Settings(
-          currentFontSize: _currentFontSize,
-          onFontSizeChanged: changeFontSize,
-          currentMode: _currentThemeMode,
-          onThemeChanged: changeTheme,
-        ),
+          // حافظت لك على كود التكبير لكي تستخدمه متى شئت
+          // builder: (context, child) {
+          //   return MediaQuery(
+          //     data: MediaQuery.of(context).copyWith(
+          //       textScaler: TextScaler.linear(_getFontSize(_currentFontSize)),
+          //     ),
+          //     child: child!,
+          //   );
+          // },
+        );
       },
-
-      /// builder:
-      /// each page will be selected by user will come to builder first before
-      /// appears to user , this useful for if i need to make any changes on
-      /// screen before drawing user screen (before appear)
-      // builder: (context, child) {
-      //   return MediaQuery(
-      //     data: MediaQuery.of(context).copyWith(
-      //       textScaler: TextScaler.linear(_getFontSize(_currentFontSize)),
-      //     ),
-      //     child: child!,
-      //   );
-      // },
     );
   }
 }

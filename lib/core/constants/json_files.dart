@@ -6,4 +6,5 @@ class ConstJsonFiles {
   static const String meraj = "$_path/meraj.json";
   static const String prayerAzkar = "$_path/after_prayers_azkar.json";
   static const String hisnAlmuslim = "$_path/hisn_almuslim.json";
+  static const String surahs = "$_path/surahs.json";
 }

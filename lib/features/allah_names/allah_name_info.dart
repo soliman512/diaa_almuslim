@@ -1,154 +1,210 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:stroke_text/stroke_text.dart';
-import 'package:zad_almuslim/core/constants/colors.dart';
-import 'package:zad_almuslim/core/constants/icons.dart';
+import 'package:diaa_almuslim/core/constants/icons.dart';
 
 class AllahNameInfoBottomSheet extends StatelessWidget {
-  final String name_param;
-  final String meaning_param;
+  final String name;
+  final String meaning;
   final double fontSizeFactor;
+
+  // Premium Color Palette
+  static const Color _darkTeal = Color(0xFF0F3943);
+  static const Color _lightTeal = Color(0xFF1E656B);
+  static const Color _goldAccent = Color(0xFFDFAC6B);
+
   const AllahNameInfoBottomSheet({
     super.key,
-    required this.name_param,
-    required this.meaning_param,
+    required this.name,
+    required this.meaning,
     this.fontSizeFactor = 1.0,
   });
 
   @override
   Widget build(BuildContext context) {
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final bottomPadding = MediaQuery.paddingOf(context).bottom;
+
+    final bool isCompoundName = name.trim().contains(' ');
 
     return Container(
-      margin: EdgeInsets.fromLTRB(
-        8,
-        MediaQuery.sizeOf(context).height * 0.2,
-        8,
-        20,
+      width: double.infinity,
+      constraints: BoxConstraints(
+        minHeight: screenHeight * 0.7, // 70% minimum screen height
       ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark
-            ? Colors.black
-            : Colors.white,
-        borderRadius: BorderRadius.circular(32),
-      ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [_darkTeal, _lightTeal],
         ),
-        child: Stack(
-          children: [
-            Positioned(
-              bottom: -10,
-              right: -10,
-              child: Opacity(
-                opacity: 0.08,
-                child: Image.asset(
-                  ConstIcons.islamicMandala,
-                  width: 80,
-                  height: 80,
-                ),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(32),
+        ),
+      ),
+      clipBehavior: Clip.antiAlias, 
+      child: Stack(
+        children: [
+          Positioned(
+            top: -screenWidth * 0.1,
+            right: -screenWidth * 0.2,
+            child: Opacity(
+              opacity: 0.03, // 3% opacity for a very subtle, premium feel
+              child: Image.asset(
+                ConstIcons.islamicMandala,
+                width: screenWidth * 1.2,
+                height: screenWidth * 1.2,
+                color: Colors.white,
               ),
             ),
+          ),
 
-            Positioned(
-              bottom: -10,
-              left: -10,
-              child: Opacity(
-                opacity: 0.08,
-
-                child: Image.asset(
-                  ConstIcons.islamicMandala,
-                  width: 80,
-                  height: 80,
-                ),
-              ),
-            ),
-
-            Padding(
+          // 2. Foreground Content
+          SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Padding(
               padding: EdgeInsets.only(
                 top: 16,
-                left: 20,
-                right: 20,
-                bottom: bottomPadding + 24,
+                left: 24,
+                right: 24,
+                bottom: bottomPadding + 32,
               ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        color: Colors.grey[300],
-                        size: 40,
-                      ),
-                    ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Premium Drag Handle
+                  _buildDragHandle(),
+                  const SizedBox(height: 48),
 
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Image.asset(ConstIcons.allahNameTitleBox),
-                        Padding(
-                          padding: EdgeInsets.only(
-                            bottom: name_param.split(' ').length > 1
-                                ? 10.0
-                                : 50.0,
-                          ),
-                          child: StrokeText(
-                            text: name_param,
-                            textStyle: TextStyle(
-                              color: Colors.white,
-                              fontSize: name_param.split(' ').length > 1
-                                  ? 30
-                                  : 65,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'el-messiri',
-                              shadows: const [
-                                Shadow(
-                                  color: Color.fromARGB(255, 0, 100, 67),
-                                  offset: Offset(0, 4),
-                                  blurRadius: 6,
-                                ),
-                              ],
-                            ),
-                            textAlign: TextAlign.center,
-                            strokeColor: ConstColors.secondMainColor,
-                            strokeWidth: 6,
-                          ),
+                  // Elegant Header
+                  _buildPremiumDivider(),
+                  const SizedBox(height: 24),
+                  
+                  // Allah's Name Typography
+                  Text(
+                    name,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: _goldAccent,
+                      fontSize: isCompoundName ? 42 : 56,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'el-messiri',
+                      height: 1.2,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withValues(alpha: 0.25),
+                          offset: const Offset(0, 8),
+                          blurRadius: 16,
                         ),
                       ],
                     ),
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  _buildPremiumDivider(),
+                  const SizedBox(height: 48),
 
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 40.0,
-                        horizontal: 12,
-                      ),
-                      child: MediaQuery(
-                        data: MediaQuery.of(context).copyWith(
-                          textScaler: TextScaler.linear(fontSizeFactor),
-                        ),
-                        child: Text(
-                          meaning_param,
-                          style: Theme.of(context).textTheme.bodyLarge
-                              ?.copyWith(
-                                height: 1.6,
-                                fontWeight: FontWeight.w500,
-                              ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  // Premium Content Card
+                  _buildMeaningCard(context),
+                ],
               ),
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Builds a subtle, elegant drag handle at the top.
+  Widget _buildDragHandle() {
+    return Container(
+      width: 48,
+      height: 4,
+      decoration: BoxDecoration(
+        color: _goldAccent.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(10),
+      ),
+    );
+  }
+
+  /// Builds a modern, custom geometric divider using Flutter widgets.
+  Widget _buildPremiumDivider() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Left fading line
+        Container(
+          width: 80,
+          height: 1,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.transparent, _goldAccent.withValues(alpha: 0.6)],
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+        // Center geometric diamond
+        Transform.rotate(
+          angle: math.pi / 4,
+          child: Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              border: Border.all(color: _goldAccent, width: 1.5),
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+        // Right fading line
+        Container(
+          width: 80,
+          height: 1,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [_goldAccent.withValues(alpha: 0.6), Colors.transparent],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Builds the luxury card container for the meaning text.
+  Widget _buildMeaningCard(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      decoration: BoxDecoration(
+        // Darker transparent background for contrast
+        color: _darkTeal.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: _goldAccent.withValues(alpha: 0.15),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          textScaler: TextScaler.linear(fontSizeFactor),
+        ),
+        child: Text(
+          meaning,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                height: 1.8, // Generous line height for breathability
+                fontWeight: FontWeight.w500,
+                color: Colors.white.withValues(alpha: 0.95), // Softer white
+                letterSpacing: 0.3,
+              ),
+          textAlign: TextAlign.center,
         ),
       ),
     );

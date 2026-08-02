@@ -1,14 +1,21 @@
+
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:diaa_almuslim/core/utils/theme_mode_extension.dart';
+import 'package:diaa_almuslim/core/widgets/app_scaffold.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:zad_almuslim/core/constants/colors.dart';
-import 'package:zad_almuslim/core/constants/icons.dart';
-import 'package:zad_almuslim/core/constants/textes.dart';
-import 'package:zad_almuslim/core/widgets/appbar.dart';
-import 'package:zad_almuslim/core/widgets/counter_button.dart';
-import 'package:zad_almuslim/core/widgets/drawer.dart';
-import 'package:zad_almuslim/core/widgets/progress.dart';
-import 'package:zad_almuslim/core/widgets/special_body.dart';
-import 'package:zad_almuslim/features/sebha/sebha_logic.dart';
-import 'package:zad_almuslim/features/sebha/user_azkar_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:diaa_almuslim/core/constants/colors.dart';
+import 'package:diaa_almuslim/core/constants/icons.dart';
+import 'package:diaa_almuslim/core/constants/textes.dart';
+import 'package:diaa_almuslim/core/utils/numbers_to_ar_format.dart';
+import 'package:diaa_almuslim/core/widgets/appbar.dart';
+import 'package:diaa_almuslim/core/widgets/progress.dart';
+import 'package:diaa_almuslim/core/widgets/special_body.dart';
+import 'package:diaa_almuslim/features/sebha/sebha_logic.dart';
+import 'package:diaa_almuslim/features/sebha/user_azkar_storage.dart';
+import 'package:share_plus/share_plus.dart';
 
 class Sebha extends StatefulWidget {
   const Sebha({super.key});
@@ -17,68 +24,65 @@ class Sebha extends StatefulWidget {
   State<Sebha> createState() => _SebhaState();
 }
 
-class _SebhaState extends State<Sebha> {
-  GlobalKey<ScaffoldState> scaffoldState = GlobalKey<ScaffoldState>();
+class _SebhaState extends State<Sebha> with SingleTickerProviderStateMixin {
   List sebhaAzkar = [];
   bool isLoading = true;
-  bool isFirst33 = false;
-  int counter = 0;
+  final ValueNotifier<int> counter = ValueNotifier<int>(0);
+  final ValueNotifier<int> allSebhaCount = ValueNotifier<int>(0);
   GlobalKey<FormState> addZikrFormState = GlobalKey<FormState>();
   late String zikrAddedByUser;
-  bool isZikrSelected = false;
-  List<Map<String, dynamic>> userAzkar = [];
+  final PageController _pageController = PageController();
+  List<String> userAzkar = [];
   final UserAzkarStorage _storage = UserAzkarStorage();
+  late final AnimationController dottedBorderController;
+
   void _showMilestoneSnackbar(int currentCounter) {
     final int milestone = currentCounter;
 
-    String message = "تَمّت $milestone.. زادك الله نوراً";
+    String message = "تَمّت $milestone.. زادك الله نوراً \n هذه 33 اخرى";
     if (milestone == 33) {
       message = "ثلث المائة.. تقبّل الله منك";
     } else if (milestone == 66) {
       message = "ثلثا المائة.. واصل بقلبٍ حاضر";
     } else if (milestone == 99) {
-      message = "٩٩.. بقي ذكرٌ واحد لتمام المائة";
+      message = "99.. بقي ذكرٌ واحد لتمام المائة";
+    } else {
+      if (milestone / 33 is int) {
+        message = "أكملت 33 اخرى.. تقبّل الله منك";
+      }
     }
     if (!mounted) {
       return;
     }
-    ScaffoldMessenger.of(context).clearSnackBars();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: ConstColors.mainColor.withValues(alpha: 0.9),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(milliseconds: 1500),
-        margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
+    Fluttertoast.showToast(
+      msg: message.toArabicFormat(),
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.TOP,
+      backgroundColor: ConstColors.primaryTeal.withValues(alpha: 0.9),
+      textColor: Colors.white,
+      fontSize: 14.0,
     );
   }
 
   void showAddZikrForm() {
-    showAdaptiveDialog(
+    showCupertinoDialog(
+      barrierDismissible: true,
+
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
+      builder: (context) => Material(
+        type: MaterialType.transparency,
+
         child: Center(
           child: Container(
             width: double.infinity,
+            margin: const EdgeInsets.symmetric(horizontal: 24),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: ConstColors.primaryTeal,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -91,49 +95,13 @@ class _SebhaState extends State<Sebha> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 spacing: 16,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Colors.orange.withOpacity(0.2),
-                        width: 1,
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.info_outline_rounded,
-                          color: Colors.orange,
-                          size: 22,
-                        ),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            "تستطيع حذفه إذا قمت بتمريره لليسار",
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.orange,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 8),
-
+                  //text field
                   TextFormField(
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Colors.black,
+                      color: Colors.white,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -151,36 +119,38 @@ class _SebhaState extends State<Sebha> {
                       zikrAddedByUser = value!;
                       await _saveData();
                       await loadUserAzkar();
+                      await loadData();
 
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text(
-                              "تم إضافة الذكر بنجاح",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            backgroundColor: ConstColors.mainColor,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
+                        Fluttertoast.showToast(
+                          msg: "تم إضافة الذكر بنجاح",
+                          backgroundColor: ConstColors.primaryTeal,
+                          textColor: Colors.white,
+                          gravity: ToastGravity.TOP,
+                          toastLength: Toast.LENGTH_SHORT,
                         );
+
                         Navigator.pop(context);
+
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (_pageController.hasClients) {
+                            _pageController.animateToPage(
+                              sebhaAzkar.length - 1,
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.fastOutSlowIn,
+                            );
+                          }
+                        });
                       }
-                      setState(() {});
                     },
+                    cursorColor: ConstColors.goldAccent,
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: ConstColors.input,
+                      fillColor: ConstColors.goldAccent.withValues(alpha: .1),
+
                       hintText: "اكتب الذكر هنا...",
                       hintStyle: TextStyle(
-                        color: Colors.grey.shade400,
+                        color: ConstColors.goldAccent.withValues(alpha: .5),
                         fontSize: 14,
                       ),
                       contentPadding: const EdgeInsets.symmetric(
@@ -188,23 +158,54 @@ class _SebhaState extends State<Sebha> {
                         vertical: 16,
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(
-                          16,
-                        ), // متناسق مع زوايا الحاوية
+                        borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
                       ),
-                      // إضاءة خفيفة عند التركيز والكتابة
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide(
-                          color: ConstColors.mainColor.withOpacity(0.5),
+                          color: ConstColors.goldAccent.withValues(alpha: 0.5),
                           width: 1.5,
                         ),
                       ),
                     ),
                   ),
-
-                  // 3. زر التأكيد (Confirm Button)
+                  //info box
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      // color: ConstColors.goldAccent,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: ConstColors.goldAccent,
+                        width: 1,
+                      ),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline_rounded,
+                          color: ConstColors.goldAccent,
+                          size: 22,
+                        ),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            "يمكنك حذفه لاحقا",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: ConstColors.goldAccent,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  //confirmation button
                   Padding(
                     padding: const EdgeInsets.only(top: 12.0),
                     child: IconButton(
@@ -215,15 +216,17 @@ class _SebhaState extends State<Sebha> {
                       },
                       icon: Image.asset(
                         ConstIcons.check,
+                        color: ConstColors.primaryTeal,
                         width: 24,
                         height: 24,
                       ),
                       style: IconButton.styleFrom(
                         padding: const EdgeInsets.all(16),
-                        backgroundColor: ConstColors.mainColor,
-                        foregroundColor: Colors.white,
+                        backgroundColor: ConstColors.goldAccent,
                         elevation: 4,
-                        shadowColor: ConstColors.mainColor.withOpacity(0.4),
+                        shadowColor: ConstColors.goldAccent.withValues(
+                          alpha: 0.4,
+                        ),
                       ),
                     ),
                   ),
@@ -237,28 +240,38 @@ class _SebhaState extends State<Sebha> {
   }
 
   Future<void> _saveData() async {
-    Map<String, dynamic> zikrData = {
-      "id": DateTime.now().millisecondsSinceEpoch,
-      "content": zikrAddedByUser,
-    };
+    String zikrData = zikrAddedByUser;
 
     await _storage.addNewZikr(zikrData);
   }
 
   Future<void> loadUserAzkar() async {
+    userAzkar.clear();
     userAzkar = await _storage.loadUserAzkar();
     setState(() {
       isLoading = false;
     });
   }
 
-  void loadData() async {
+  Future<void> loadData() async {
     var data = await SebhaLogic.loadSebhaAzkar();
     if (data.isNotEmpty) {
+      sebhaAzkar.clear();
       setState(() {
         sebhaAzkar.addAll(data);
+        sebhaAzkar.addAll(userAzkar);
       });
     }
+  }
+
+  void setAllSebhaCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt('sebha_counter', allSebhaCount.value);
+  }
+
+  void getallSebhaCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    allSebhaCount.value = prefs.getInt('sebha_counter') ?? 0;
   }
 
   @override
@@ -266,317 +279,386 @@ class _SebhaState extends State<Sebha> {
     super.initState();
     loadData();
     loadUserAzkar();
+    // setAllSebhaCount();
+    getallSebhaCount();
+    dottedBorderController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 5000),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    dottedBorderController.dispose();
+    counter.dispose();
+    _pageController.dispose();
+    allSebhaCount.dispose();
+    // selectedIndex.dispose();
+    super.dispose();
+  }
+
+  void _showAzkarList() {
+    showModalBottomSheet(
+      backgroundColor: ConstColors.primaryTeal,
+      clipBehavior: Clip.antiAlias,
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (BuildContext context, StateSetter setModalState) {
+          return ListView.builder(
+            itemCount: sebhaAzkar.length,
+            itemBuilder: (context, index) => Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white10),
+              ),
+              child: ListTile(
+                onTap: () {
+                  Navigator.pop(context);
+                  _pageController.animateToPage(
+                    index,
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.fastOutSlowIn,
+                  );
+                },
+                leading: Text(
+                  (index + 1).toString().toArabicFormat(),
+                  style: const TextStyle(
+                    color: ConstColors.goldAccent,
+                    fontSize: 18,
+                  ),
+                ),
+                title: Text(
+                  sebhaAzkar[index],
+                  style: const TextStyle(
+                    color: ConstColors.goldAccent,
+                    fontSize: 14,
+                  ),
+                ),
+                trailing: (userAzkar.contains(sebhaAzkar[index]))
+                    ? IconButton(
+                        onPressed: () async {
+                          var itemToDelete = sebhaAzkar[index];
+                          int indexInUserAzkar = userAzkar.indexOf(
+                            itemToDelete,
+                          );
+
+                          if (indexInUserAzkar != -1) {
+                            setModalState(() {
+                              userAzkar.removeAt(indexInUserAzkar);
+                              sebhaAzkar.removeAt(index);
+                            });
+                            setState(() {});
+
+                            try {
+                              await _storage.removeZikrAt(indexInUserAzkar);
+                            } catch (e) {
+                              print("Error removing from storage: $e");
+                            }
+                          }
+                        },
+                        icon: const Icon(
+                          Icons.delete_outline_rounded,
+                          color: Colors.white,
+                        ),
+                      )
+                    : null,
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       extendBodyBehindAppBar: true,
-      key: scaffoldState,
-      appBar: MyAppbar(
-        onPressDrawer: () {
-          scaffoldState.currentState!.openDrawer();
-        },
-        pageName: ConstTexts.mesbha,
-      ),
-      drawer: AppDrawer(),
+      appBar: MyAppbar(showSettingsButton: true, pageName: ConstTexts.mesbha),
+
       body: isLoading
-          ? Porgress()
+          ? const Porgress()
           : SpecialBody(
               body: Column(
                 children: [
-                  SizedBox(height: 180),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        DropdownMenu<String>(
-                          onSelected: (value) => setState(() {
-                            isZikrSelected = true;
-                          }),
-                          textStyle: TextStyle(
-                            color: Colors.white,
-                            fontFamily: "uthman",
-                            fontSize: 22,
-                          ),
-                          textAlign: TextAlign.center,
-                          expandedInsets: EdgeInsets.zero,
-                          showTrailingIcon: false,
-
-                          inputDecorationTheme: InputDecorationTheme(
-                            fillColor: ConstColors.mainColor,
-                            filled: true,
-                            alignLabelWithHint: false,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-
-                            enabledBorder: UnderlineInputBorder(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(20),
-                                topRight: Radius.circular(20),
-                                bottomLeft: Radius.circular(4),
-                                bottomRight: Radius.circular(4),
-                              ),
+                  const SizedBox(height: 80),
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      clipBehavior: Clip.antiAlias,
+                      // width: double.infinity,
+                      // height: context.screenSize.height * .22,
+                      decoration: BoxDecoration(
+                        gradient: ConstColors.tealGradient,
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            bottom: 0,
+                            child: Image.asset(
+                              width: 400,
+                              ConstIcons.mosque,
+                              color: const Color.fromARGB(15, 255, 255, 255),
                             ),
                           ),
-                          label: const Center(
-                            child: Text(
-                              "اختر ذكرََا",
-                              style: TextStyle(
-                                color: Color.fromARGB(125, 255, 255, 255),
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
-                          width: MediaQuery.sizeOf(context).width * 0.9,
-                          menuStyle: MenuStyle(
-                            padding: WidgetStatePropertyAll(
-                              EdgeInsets.symmetric(horizontal: 4),
-                            ),
-                            maximumSize: WidgetStatePropertyAll(
-                              Size(
-                                double.infinity,
-                                MediaQuery.sizeOf(context).height * 0.54,
-                              ),
-                            ),
-                            alignment: Alignment.bottomRight,
-                            backgroundColor: WidgetStatePropertyAll(
-                              Theme.of(context).brightness == Brightness.dark
-                                  ? Colors.black
-                                  : Colors.white,
-                            ),
-                            elevation: const WidgetStatePropertyAll(12),
-                            shape: WidgetStatePropertyAll(
-                              RoundedRectangleBorder(
-                                borderRadius: const BorderRadius.only(
-                                  bottomLeft: Radius.circular(20),
-                                  bottomRight: Radius.circular(20),
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          dropdownMenuEntries: [
-                            ...List.generate(sebhaAzkar.length, (zikr) {
-                              return DropdownMenuEntry<String>(
-                                value: sebhaAzkar[zikr]["content"],
-                                label: sebhaAzkar[zikr]["content"],
-
-                                labelWidget: Container(
-                                  width: double.infinity,
-                                  height: 60,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                        color: ConstColors.mainColor.withValues(
-                                          alpha: 0.8,
-                                        ),
-                                        width: 0.5,
-                                      ),
-                                    ),
+                          Column(
+                            // mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.fromLTRB(
+                                    20,
+                                    context.screenSize.height < 700 ? 12 : 36,
+                                    20,
+                                    12,
                                   ),
+                                  child: PageView.builder(
+                                    controller: _pageController,
 
-                                  child: Text(
-                                    sebhaAzkar[zikr]["content"],
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontFamily: "uthman",
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ),
-
-                                style: MenuItemButton.styleFrom(
-                                  alignment: Alignment.center,
-                                  fixedSize: const Size.fromHeight(60),
-                                  padding: EdgeInsets.zero,
-                                ),
-                              );
-                            }),
-                            //user azkar
-                            ...List.generate(userAzkar.length, (userZikr) {
-                              final uZikr = userAzkar[userZikr];
-                              return DropdownMenuEntry<String>(
-                                value: uZikr['content'],
-                                label: uZikr['content'],
-
-                                labelWidget: Dismissible(
-                                  key: Key(uZikr['content']),
-                                  background: Container(
-                                    padding: EdgeInsets.only(right: 20),
-                                    alignment: Alignment.centerRight,
-                                    color: Colors.red.withOpacity(0.7),
-                                    child: Icon(
-                                      Icons.delete,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  direction: DismissDirection.startToEnd,
-
-                                  // confirmDismiss: (direction) => showDialog(
-                                  //   context: context,
-                                  //   builder: (context) => AlertDialog(
-                                  //     title: Text("تأكيد الحذف"),
-                                  //     content: Text(
-                                  //       "هل انت متأكد من حذف العنصر ؟",
-                                  //     ),
-                                  //     actions: [
-                                  //       TextButton(
-                                  //         onPressed: () {},
-                                  //         child: Text("حذف"),
-                                  //       ),
-                                  //       TextButton(
-                                  //         onPressed: () {},
-                                  //         child: Text("تراجع"),
-                                  //       ),
-                                  //     ],
-                                  //   ),
-                                  // ),
-                                  onDismissed: (direction) async {
-                                    // 1. أضفنا async هنا
-                                    // 2. احذف من الملف الموقت وانتظر انتهاء العملية
-                                    await _storage.removeZikr(uZikr["id"]);
-
-                                    // 3. حدث الواجهة واحذف العنصر من القائمة المحلية في الذاكرة
-                                    setState(() {
-                                      userAzkar.removeAt(userZikr);
-                                    });
-
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        backgroundColor: Colors.red,
-                                        behavior: SnackBarBehavior.floating,
-
-                                        content: Text(
-                                          "تم حذف الذكر بنجاح",
+                                    itemCount: sebhaAzkar.length,
+                                    itemBuilder: (context, index) =>
+                                        AutoSizeText(
+                                          sebhaAzkar[index],
                                           textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontFamily: 'arsura',
+                                            fontSize: 18,
+                                            color: ConstColors.goldAccent,
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    width: double.infinity,
-                                    height: 60,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          color: ConstColors.mainColor
-                                              .withValues(alpha: 0.8),
-                                          width: 0.5,
-                                        ),
-                                      ),
-                                    ),
-
-                                    child: Text(
-                                      userAzkar[userZikr]['content'],
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
                                   ),
                                 ),
-
-                                style: MenuItemButton.styleFrom(
-                                  alignment: Alignment.center,
-                                  fixedSize: const Size.fromHeight(60),
-                                  padding: EdgeInsets.zero,
-                                ),
-                              );
-                            }),
-
-                            DropdownMenuEntry<String>(
-                              value: "اضافة ذكر جديد",
-                              label: "add_new_zikr",
-
-                              style: ButtonStyle(
-                                padding: const WidgetStatePropertyAll(
-                                  EdgeInsets.zero,
-                                ),
                               ),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: () =>
+                                        _pageController.previousPage(
+                                          duration: const Duration(
+                                            milliseconds: 500,
+                                          ),
+                                          curve: Curves.fastOutSlowIn,
+                                        ),
+                                    icon: Image.asset(
+                                      ConstIcons.nextZikr,
+                                      color: ConstColors.goldAccent,
+                                      width: 14,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () => _pageController.nextPage(
+                                      duration: const Duration(
+                                        milliseconds: 500,
+                                      ),
+                                      curve: Curves.fastOutSlowIn,
+                                    ),
+                                    icon: Transform.flip(
+                                      flipX: true,
+                                      child: Image.asset(
+                                        ConstIcons.nextZikr,
+                                        color: ConstColors.goldAccent,
+                                        width: 14,
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  IconButton(
+                                    onPressed: showAddZikrForm,
+                                    icon: const Icon(
+                                      Icons.add,
+                                      color: ConstColors.goldAccent,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: _showAzkarList,
+                                    icon: const Icon(
+                                      Icons.list_rounded,
+                                      color: ConstColors.goldAccent,
+                                    ),
+                                  ),
 
-                              labelWidget: IconButton(
-                                onPressed: showAddZikrForm,
-
-                                icon: const Icon(Icons.add),
-
-                                color: ConstColors.mainColor,
-
-                                style: IconButton.styleFrom(
-                                  backgroundColor: ConstColors.mainColor
-                                      .withOpacity(0.3),
-                                ),
+                                  IconButton(
+                                    onPressed: () {
+                                      int zikrIndex = _pageController.page!
+                                          .round();
+                                      SharePlus.instance.share(
+                                        ShareParams(
+                                          text: sebhaAzkar[zikrIndex],
+                                        ),
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      Icons.share,
+                                      color: ConstColors.goldAccent,
+                                      size: 18,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                        // reset counter
-                        OutlinedButton(
-                          onPressed: () {
-                            setState(() {
-                              counter = 0;
-                            });
-                          },
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: Size(double.infinity, 40),
-                            side: BorderSide(
-                              color: ConstColors.mainColor,
-                              width: 1,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(4),
-                                topRight: Radius.circular(4),
-                                bottomLeft: Radius.circular(20),
-                                bottomRight: Radius.circular(20),
-                              ),
-                            ),
+                            ],
                           ),
-                          child: Text(
-                            "تصفير العداد",
-                            style: Theme.of(context).textTheme.bodyMedium!
-                                .copyWith(color: ConstColors.mainColor),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                  SizedBox(height: 40),
                   Expanded(
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: isZikrSelected
-                          ? CounterButton(
-                              onPressed: () {
-                                setState(() {
-                                  counter++;
-                                });
-                                if (counter % 33 == 0 && counter > 0) {
-                                  _showMilestoneSnackbar(counter);
-                                }
-                              },
-                              label: counter.toString(),
-                            )
-                          : Container(
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: ConstColors.mainColor.withOpacity(0.5),
+                    flex: 5,
+                    child: ValueListenableBuilder(
+                      valueListenable: counter,
+                      builder: (context, value, child) {
+                        return GestureDetector(
+                          onTap: () {
+                            if (counter.value % 33 == 0 && counter.value > 0) {
+                              _showMilestoneSnackbar(counter.value);
+                            }
+                            counter.value++;
+                            allSebhaCount.value++;
+                            setAllSebhaCount();
+                          },
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Image.asset(
+                                ConstIcons.sebhaBox,
+                                width: double.infinity,
+                                fit: BoxFit.contain,
+                              ),
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 250),
+                                transitionBuilder: (child, animation) {
+                                  return ScaleTransition(
+                                    scale: animation,
+                                    child: child,
+                                  );
+                                },
+                                child: AutoSizeText(
+                                  counter.value.toString().toArabicFormat(),
+                                  key: ValueKey(counter.value),
+                                  maxFontSize: 60,
+                                  style: TextStyle(
+                                    fontSize: 60,
+                                    color: context.isDarkMode
+                                        ? ConstColors.goldAccent
+                                        : ConstColors.primaryTeal,
+                                    // fontFamily: '',
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                              child: Text(
-                                "اختر الذكر اولا",
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8.0,
+                        horizontal: 8.0,
+                      ),
+                      decoration: BoxDecoration(
+                        color: ConstColors.primaryTeal,
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: Colors.white10),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                              ),
+                              onPressed: () {
+                                counter.value = 0;
+                              },
+                              child: const AutoSizeText(
+                                'تصفير العداد',
+                                maxLines: 1,
+                                minFontSize: 8,
                                 style: TextStyle(
-                                  color: ConstColors.mainColor.withOpacity(0.2),
-                                  fontSize: 30,
+                                  color: ConstColors.goldAccent,
+                                  fontSize: 14,
                                 ),
-                                textAlign: TextAlign.center,
                               ),
                             ),
+                          ),
+
+                          Container(
+                            height: 35,
+                            width: 1,
+                            color: Colors.white24,
+                          ),
+                          Expanded(
+                            child: ValueListenableBuilder(
+                              valueListenable: allSebhaCount,
+                              builder: (context, value, child) {
+                                return FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Text(
+                                        'حصالتك',
+                                        style: TextStyle(
+                                          color: ConstColors.goldAccent,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        allSebhaCount.value
+                                            .toString()
+                                            .toArabicFormat(),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          Container(
+                            height: 35,
+                            width: 1,
+                            color: Colors.white24,
+                          ),
+
+                          Expanded(
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                              ),
+                              onPressed: () {
+                                counter.value = 0;
+                                allSebhaCount.value = 0;
+                                setAllSebhaCount();
+                              },
+                              child: const AutoSizeText(
+                                'تصفير الحصالة',
+                                maxLines: 1,
+                                minFontSize: 8,
+                                style: TextStyle(
+                                  color: ConstColors.goldAccent,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

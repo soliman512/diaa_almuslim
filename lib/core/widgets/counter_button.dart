@@ -1,6 +1,7 @@
+import 'package:diaa_almuslim/core/utils/theme_mode_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:zad_almuslim/core/constants/colors.dart';
-import 'package:zad_almuslim/core/utils/numbers_to_ar_format.dart';
+import 'package:diaa_almuslim/core/constants/colors.dart';
+import 'package:diaa_almuslim/core/utils/numbers_to_ar_format.dart';
 
 class CounterButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -16,17 +17,31 @@ class CounterButton extends StatelessWidget {
     return OutlinedButton.icon(
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
-        side: BorderSide(color: ConstColors.mainColor),
+        side: BorderSide(
+          color: context.isDarkMode
+              ? ConstColors.goldAccent
+              : ConstColors.primaryTeal,
+        ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
-      label: Text(
-        label.toArabicFormat(),
-        style: TextStyle(
-          color: ConstColors.mainColor,
-          fontSize: 42,
-          fontFamily: 'cairo',
+      label: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 250),
+        transitionBuilder: (child, animation) {
+          return ScaleTransition(scale: animation, child: child);
+        },
+        child: Text(
+          label.toArabicFormat(),
+          key: ValueKey(label),
+          style: TextStyle(
+            color: context.isDarkMode
+                ? ConstColors.goldAccent
+                : ConstColors.primaryTeal,
+            fontSize: 48,
+            fontWeight: FontWeight.w600,
+            // fontFamily: 'arsura',
+          ),
+          textAlign: TextAlign.center,
         ),
-        textAlign: TextAlign.center,
       ),
     );
   }

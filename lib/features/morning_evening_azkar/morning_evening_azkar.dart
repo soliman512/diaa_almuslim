@@ -1,16 +1,17 @@
+import 'package:diaa_almuslim/core/utils/theme_mode_extension.dart';
+import 'package:diaa_almuslim/core/widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
-import 'package:zad_almuslim/core/constants/colors.dart';
-import 'package:zad_almuslim/core/constants/icons.dart';
-import 'package:zad_almuslim/core/constants/json_files.dart';
-import 'package:zad_almuslim/core/constants/textes.dart';
-import 'package:zad_almuslim/core/utils/date_format.dart';
-import 'package:zad_almuslim/core/utils/numbers_to_ar_format.dart';
-import 'package:zad_almuslim/core/widgets/counter_button.dart';
-import 'package:zad_almuslim/core/widgets/drawer.dart';
-import 'package:zad_almuslim/core/widgets/progress.dart';
-import 'package:zad_almuslim/core/widgets/special_body.dart';
-import 'package:zad_almuslim/features/morning_evening_azkar/evening_morning_azkar_logic.dart';
-import 'package:zad_almuslim/core/widgets/appbar.dart';
+import 'package:diaa_almuslim/core/constants/colors.dart';
+import 'package:diaa_almuslim/core/constants/icons.dart';
+import 'package:diaa_almuslim/core/constants/json_files.dart';
+import 'package:diaa_almuslim/core/constants/textes.dart';
+import 'package:diaa_almuslim/core/utils/date_format.dart';
+import 'package:diaa_almuslim/core/utils/numbers_to_ar_format.dart';
+import 'package:diaa_almuslim/core/widgets/counter_button.dart';
+import 'package:diaa_almuslim/core/widgets/progress.dart';
+import 'package:diaa_almuslim/core/widgets/special_body.dart';
+import 'package:diaa_almuslim/features/morning_evening_azkar/evening_morning_azkar_logic.dart';
+import 'package:diaa_almuslim/core/widgets/appbar.dart';
 
 class MorningEveningAzkar extends StatefulWidget {
   const MorningEveningAzkar({super.key, this.fontSizeFactor = 1.0});
@@ -106,20 +107,18 @@ class _MorningEveningAzkarState extends State<MorningEveningAzkar> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       key: _scaffoldKeyState,
       extendBodyBehindAppBar: true,
       appBar: MyAppbar(
-        onPressDrawer: () {
-          _scaffoldKeyState.currentState!.openDrawer();
-        },
+        showSettingsButton: true,
         pageName: DateManager.isMorning()
             ? ConstTexts.morningAzkar
             : ConstTexts.eveningAzkar,
       ),
-      drawer: const AppDrawer(),
+
       body: isLoading
-          ? Porgress()
+          ? const Porgress()
           : SpecialBody(
               body: MediaQuery(
                 data: MediaQuery.of(context).copyWith(
@@ -142,7 +141,12 @@ class _MorningEveningAzkarState extends State<MorningEveningAzkar> {
                                 alignment: Alignment.center,
                                 children: [
                                   //zikr number box
-                                  Image.asset(ConstIcons.zikrNumber),
+                                  Image.asset(
+                                    ConstIcons.zikrNumber,
+                                    color: context.isDarkMode
+                                        ? ConstColors.goldAccent
+                                        : ConstColors.primaryTeal,
+                                  ),
 
                                   //zikr number NUM
                                   Text(
@@ -150,7 +154,7 @@ class _MorningEveningAzkarState extends State<MorningEveningAzkar> {
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodySmall!
-                                        .copyWith(fontFamily: 'cairo'),
+                                        .copyWith(fontFamily: 'arusura'),
                                   ),
                                 ],
                               ),
@@ -185,7 +189,7 @@ class _MorningEveningAzkarState extends State<MorningEveningAzkar> {
                                                 .textTheme
                                                 .bodyMedium!
                                                 .copyWith(
-                                                  fontFamily: "uthman",
+                                                  fontFamily: 'arsura',
                                                   fontSize: 20,
                                                   height: 1.8,
                                                 ),
@@ -193,7 +197,10 @@ class _MorningEveningAzkarState extends State<MorningEveningAzkar> {
                                           if (reward.isNotEmpty) ...[
                                             const SizedBox(height: 10),
                                             Divider(
-                                              color: ConstColors.input,
+                                              color: context.isDarkMode
+                                                  ? ConstColors.input
+                                                        .withValues(alpha: .3)
+                                                  : ConstColors.input,
                                               indent: 40,
                                               endIndent: 40,
                                             ),
@@ -206,7 +213,9 @@ class _MorningEveningAzkarState extends State<MorningEveningAzkar> {
                                               child: Text(
                                                 reward,
                                                 style: TextStyle(
-                                                  color: ConstColors.mainColor,
+                                                  color: context.isDarkMode
+                                                      ? ConstColors.goldAccent
+                                                      : ConstColors.primaryTeal,
                                                   fontSize: 14,
                                                 ),
                                                 textAlign: TextAlign.center,
@@ -226,12 +235,14 @@ class _MorningEveningAzkarState extends State<MorningEveningAzkar> {
                                 text: TextSpan(
                                   style: Theme.of(context).textTheme.bodySmall,
                                   children: [
-                                    TextSpan(text: "التكرار: "),
+                                    const TextSpan(text: "التكرار: "),
                                     TextSpan(
                                       text: azkar[value]["repeat"]
                                           .toString()
                                           .toArabicFormat(),
-                                      style: TextStyle(fontFamily: 'cairo'),
+                                      style: const TextStyle(
+                                        fontFamily: 'arusura',
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -257,7 +268,9 @@ class _MorningEveningAzkarState extends State<MorningEveningAzkar> {
                               child: FilledButton.icon(
                                 onPressed: nextZikr,
                                 style: FilledButton.styleFrom(
-                                  backgroundColor: ConstColors.mainColor,
+                                  backgroundColor: context.isDarkMode
+                                      ? ConstColors.goldAccent
+                                      : ConstColors.primaryTeal,
                                   shape: const RoundedRectangleBorder(
                                     borderRadius: BorderRadius.only(
                                       topLeft: Radius.circular(20),
@@ -267,7 +280,12 @@ class _MorningEveningAzkarState extends State<MorningEveningAzkar> {
                                     ),
                                   ),
                                 ),
-                                label: Image.asset(ConstIcons.nextZikr),
+                                label: Image.asset(
+                                  ConstIcons.nextZikr,
+                                  color: context.isDarkMode
+                                      ? ConstColors.primaryTeal
+                                      : ConstColors.goldAccent,
+                                ),
                               ),
                             ),
                           ),
@@ -294,7 +312,9 @@ class _MorningEveningAzkarState extends State<MorningEveningAzkar> {
                                 onPressed: previousZikr,
                                 style: OutlinedButton.styleFrom(
                                   side: BorderSide(
-                                    color: ConstColors.mainColor,
+                                    color: context.isDarkMode
+                                        ? ConstColors.goldAccent
+                                        : ConstColors.primaryTeal,
                                   ),
                                   shape: const RoundedRectangleBorder(
                                     borderRadius: BorderRadius.only(
@@ -305,7 +325,15 @@ class _MorningEveningAzkarState extends State<MorningEveningAzkar> {
                                     ),
                                   ),
                                 ),
-                                label: Image.asset(ConstIcons.pastZikr),
+                                label: Transform.flip(
+                                  flipX: true,
+                                  child: Image.asset(
+                                    ConstIcons.nextZikr,
+                                    color: context.isDarkMode
+                                        ? ConstColors.goldAccent
+                                        : ConstColors.primaryTeal,
+                                  ),
+                                ),
                               ),
                             ),
                           ),

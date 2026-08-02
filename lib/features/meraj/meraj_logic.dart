@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
-import 'package:zad_almuslim/core/constants/json_files.dart';
+import 'package:diaa_almuslim/core/constants/json_files.dart';
 
 class MerajLogic {
   static const String _jsonFilePath = ConstJsonFiles.meraj;

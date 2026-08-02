@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "zad_almuslim" "\0"
+            VALUE "FileDescription", "diaa_almuslim" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "zad_almuslim" "\0"
+            VALUE "InternalName", "diaa_almuslim" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "zad_almuslim.exe" "\0"
-            VALUE "ProductName", "zad_almuslim" "\0"
+            VALUE "OriginalFilename", "diaa_almuslim.exe" "\0"
+            VALUE "ProductName", "diaa_almuslim" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
