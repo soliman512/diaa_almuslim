@@ -1,11 +1,13 @@
+import 'package:diaa_almuslim/core/utils/numbers_to_ar_format.dart';
+import 'package:diaa_almuslim/core/utils/theme_mode_extension.dart';
+import 'package:diaa_almuslim/core/widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
-import 'package:zad_almuslim/core/constants/colors.dart';
-import 'package:zad_almuslim/core/constants/icons.dart';
-import 'package:zad_almuslim/core/widgets/counter_button.dart';
-import 'package:zad_almuslim/core/widgets/drawer.dart';
-import 'package:zad_almuslim/core/widgets/special_body.dart';
-import 'package:zad_almuslim/core/widgets/appbar.dart';
-import 'package:zad_almuslim/features/meraj/meraj_user_completed_azkar.dart';
+import 'package:diaa_almuslim/core/constants/colors.dart';
+import 'package:diaa_almuslim/core/constants/icons.dart';
+import 'package:diaa_almuslim/core/widgets/counter_button.dart';
+import 'package:diaa_almuslim/core/widgets/special_body.dart';
+import 'package:diaa_almuslim/core/widgets/appbar.dart';
+import 'package:diaa_almuslim/features/meraj/meraj_user_completed_azkar.dart';
 
 // ignore: must_be_immutable
 class MerajZikrCounter extends StatefulWidget {
@@ -28,23 +30,15 @@ class MerajZikrCounter extends StatefulWidget {
 }
 
 class _MerajZikrCounterState extends State<MerajZikrCounter> {
-  final GlobalKey<ScaffoldState> _scaffoldKeyState = GlobalKey<ScaffoldState>();
-
   int counter = 0;
-
+ 
   final MerajUserCompletedAzkar _userCompletedAzkar = MerajUserCompletedAzkar();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKeyState,
+    return AppScaffold(
       extendBodyBehindAppBar: true,
-      appBar: MyAppbar(
-        onPressDrawer: () {
-          _scaffoldKeyState.currentState!.openDrawer();
-        },
-        pageName: "",
-      ),
-      drawer: AppDrawer(),
+      appBar:const MyAppbar(showSettingsButton: true, pageName: "",),
+
       body: SpecialBody(
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -73,6 +67,9 @@ class _MerajZikrCounterState extends State<MerajZikrCounter> {
                                 .copyWith(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
+                                  color: context.isDarkMode
+                                      ? ConstColors.goldAccent
+                                      : ConstColors.primaryTeal,
                                 ),
                           ),
                           Text(
@@ -88,7 +85,7 @@ class _MerajZikrCounterState extends State<MerajZikrCounter> {
                 ),
               ),
             ),
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
             // times of repeat
             Row(
               spacing: 8,
@@ -100,23 +97,27 @@ class _MerajZikrCounterState extends State<MerajZikrCounter> {
                     }),
                     label: Icon(
                       Icons.replay_outlined,
-                      color: ConstColors.mainColor,
+                      color: context.isDarkMode
+                          ? ConstColors.goldAccent
+                          : ConstColors.primaryTeal,
                     ),
                   ),
                 ),
                 Expanded(
                   child: Text(
-                    "${widget.repeat.toString()} مرة",
+                    "${widget.repeat.toString()} مرة".toArabicFormat(),
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: ConstColors.mainColor,
+                      color: context.isDarkMode
+                          ? ConstColors.goldAccent
+                          : ConstColors.primaryTeal,
                     ),
                   ),
                 ),
               ],
             ),
 
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             // controls
             Expanded(
               child: SizedBox(
@@ -136,14 +137,14 @@ class _MerajZikrCounterState extends State<MerajZikrCounter> {
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
-                          backgroundColor: Colors.white,
+                          backgroundColor: ConstColors.primaryTeal,
                           title: Text(
                             "تم بحمد الله",
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyLarge!
                                 .copyWith(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.black,
+                                  color: ConstColors.goldAccent,
                                 ),
                           ),
                           content: Column(
@@ -153,15 +154,17 @@ class _MerajZikrCounterState extends State<MerajZikrCounter> {
                                 "ثبتك الله على طاعته وزادك",
                                 textAlign: TextAlign.center,
                                 style: Theme.of(context).textTheme.bodyMedium!
-                                    .copyWith(color: Colors.black),
+                                    .copyWith(color: ConstColors.goldAccent),
                               ),
-                              SizedBox(height: 20),
+                              const SizedBox(height: 20),
                               GestureDetector(
                                 onTap: () async {
                                   await _userCompletedAzkar.addNewZikr(
                                     widget.id,
                                   );
-
+                                  if (!mounted) {
+                                    return;
+                                  }
                                   Navigator.pop(context);
 
                                   Navigator.pop(context);
@@ -169,12 +172,13 @@ class _MerajZikrCounterState extends State<MerajZikrCounter> {
                                 child: Container(
                                   padding: const EdgeInsets.all(20),
                                   alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    gradient: ConstColors.mainGradientColor,
+                                  decoration: const BoxDecoration(
+                                    color: ConstColors.goldAccent,
                                     shape: BoxShape.circle,
                                   ),
                                   child: Image.asset(
                                     ConstIcons.check,
+                                    color: ConstColors.primaryTeal,
                                     width: 24,
                                     height: 24,
                                   ),

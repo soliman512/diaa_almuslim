@@ -1,15 +1,20 @@
+import 'package:diaa_almuslim/core/constants/routes.dart';
+import 'package:diaa_almuslim/core/utils/theme_mode_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:zad_almuslim/core/constants/icons.dart';
+import 'package:diaa_almuslim/core/constants/colors.dart';
+import 'package:diaa_almuslim/core/constants/icons.dart';
 
 class MyAppbar extends StatelessWidget implements PreferredSizeWidget {
-  final VoidCallback? onPressDrawer;
+  // final VoidCallback? onPressDrawer;
   final String pageName;
-  final bool? showDrawer;
+  final bool? showSettingsButton;
+  final Color? backgroundColor;
   const MyAppbar({
     super.key,
-    this.onPressDrawer,
+    // this.onPressDrawer,
     required this.pageName,
-    this.showDrawer = true,
+    this.backgroundColor =const Color(0x00000000),
+    this.showSettingsButton = false,
   });
 
   @override
@@ -18,26 +23,46 @@ class MyAppbar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.transparent,
-      surfaceTintColor: Colors.white,
-      leading: showDrawer == true
+      backgroundColor: backgroundColor,
+      elevation: 0,
+      // surfaceTintColor: Colors.white,
+      leading: showSettingsButton == true
           ? IconButton(
-              onPressed: onPressDrawer,
-              icon: Image.asset(ConstIcons.drawer, width: 26),
+              onPressed: () {
+                Navigator.pushNamed(context, ConstRoutes.settings);
+              },
+              icon: Image.asset(
+                ConstIcons.settings,
+                width: 26,
+                color: context.isDarkMode
+                    ? ConstColors.goldAccent
+                    : ConstColors.primaryTeal,
+              ),
             )
           : null,
       automaticallyImplyLeading: false,
       title: Text(
         pageName,
-        style: Theme.of(context).textTheme.titleLarge!.copyWith(fontSize: 24),
+        style: TextStyle(
+          fontSize: 20,
+          color: context.isDarkMode
+              ? ConstColors.goldAccent
+              : ConstColors.primaryTeal,
+        ),
       ),
-      centerTitle: showDrawer == true ? true : false,
+      centerTitle: showSettingsButton == true ? true : false,
       actions: [
         IconButton(
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: Image.asset(ConstIcons.back, width: 26),
+          icon: Image.asset(
+            ConstIcons.back,
+            width: 26,
+            color: context.isDarkMode
+                ? ConstColors.goldAccent
+                : ConstColors.primaryTeal,
+          ),
         ),
       ],
     );

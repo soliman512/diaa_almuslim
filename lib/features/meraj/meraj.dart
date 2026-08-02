@@ -1,17 +1,18 @@
+import 'package:diaa_almuslim/core/utils/theme_mode_extension.dart';
+import 'package:diaa_almuslim/core/widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:number_to_word_arabic/number_to_word_arabic.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zad_almuslim/core/constants/colors.dart';
-import 'package:zad_almuslim/core/constants/icons.dart';
-import 'package:zad_almuslim/core/constants/textes.dart';
-import 'package:zad_almuslim/core/utils/numbers_to_ar_format.dart';
-import 'package:zad_almuslim/core/widgets/appbar.dart';
-import 'package:zad_almuslim/core/widgets/drawer.dart';
-import 'package:zad_almuslim/core/widgets/progress.dart';
-import 'package:zad_almuslim/core/widgets/special_body.dart';
-import 'package:zad_almuslim/features/meraj/meraj_logic.dart';
-import 'package:zad_almuslim/features/meraj/meraj_user_completed_azkar.dart';
-import 'package:zad_almuslim/features/meraj/meraj_zikr_counter.dart';
+import 'package:diaa_almuslim/core/constants/colors.dart';
+import 'package:diaa_almuslim/core/constants/icons.dart';
+import 'package:diaa_almuslim/core/constants/textes.dart';
+import 'package:diaa_almuslim/core/utils/numbers_to_ar_format.dart';
+import 'package:diaa_almuslim/core/widgets/appbar.dart';
+import 'package:diaa_almuslim/core/widgets/progress.dart';
+import 'package:diaa_almuslim/core/widgets/special_body.dart';
+import 'package:diaa_almuslim/features/meraj/meraj_logic.dart';
+import 'package:diaa_almuslim/features/meraj/meraj_user_completed_azkar.dart';
+import 'package:diaa_almuslim/features/meraj/meraj_zikr_counter.dart';
 
 class Meraj extends StatefulWidget {
   const Meraj({super.key, this.fontSizeFactor = 1.0});
@@ -21,7 +22,6 @@ class Meraj extends StatefulWidget {
 }
 
 class _MerajState extends State<Meraj> {
-  GlobalKey<ScaffoldState> scaffoldState = GlobalKey<ScaffoldState>();
   List azkar = [];
   bool isLoading = true;
   int counter = 0;
@@ -59,7 +59,7 @@ class _MerajState extends State<Meraj> {
           children: [
             ColorFiltered(
               colorFilter: ColorFilter.mode(
-                Colors.black.withOpacity(0.8),
+                Colors.black.withValues(alpha: 0.8),
                 BlendMode.srcOut,
               ),
               child: Stack(
@@ -90,15 +90,17 @@ class _MerajState extends State<Meraj> {
                 decoration: BoxDecoration(
                   color: Colors.transparent,
                   border: Border.all(
-                    color: ConstColors.secondMainColor,
+                    color: context.isDarkMode
+                        ? ConstColors.goldAccent
+                        : ConstColors.primaryTeal,
                     width: 2,
                   ),
                   borderRadius: BorderRadius.circular(40),
                   boxShadow: [
                     BoxShadow(
-                      color: ConstColors.secondMainColor.withOpacity(0.6),
+                      color: ConstColors.goldAccent.withValues(alpha: 0.6),
                       blurRadius: 10,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                       blurStyle: BlurStyle.outer,
                     ),
                   ],
@@ -142,7 +144,9 @@ class _MerajState extends State<Meraj> {
                   ElevatedButton(
                     onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: ConstColors.secondMainColor,
+                      backgroundColor: context.isDarkMode
+                          ? ConstColors.goldAccent
+                          : ConstColors.primaryTeal,
                       minimumSize: const Size(150, 45),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
@@ -168,15 +172,22 @@ class _MerajState extends State<Meraj> {
 
   Widget _buildHintCard({required IconData icon, required String text}) {
     return Card(
-      color: Colors.black.withOpacity(0.7),
+      color: Colors.black.withValues(alpha: 0.7),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: ListTile(
-        leading: Icon(icon, color: ConstColors.secondMainColor),
+        leading: Icon(
+          icon,
+          color: context.isDarkMode
+              ? ConstColors.goldAccent
+              : ConstColors.primaryTeal,
+        ),
         title: Text(
           text,
           style: TextStyle(
-            color: ConstColors.secondMainColor,
+            color: context.isDarkMode
+                ? ConstColors.goldAccent
+                : ConstColors.primaryTeal,
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
@@ -185,29 +196,62 @@ class _MerajState extends State<Meraj> {
     );
   }
 
+  final ValueNotifier<bool> _isScrolled = ValueNotifier<bool>(false);
+  late ScrollController _scrollController;
+
   @override
   void initState() {
     loadAzkar();
-    super.initState();
     _checkFirstTime();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _isScrolled.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.offset >= 40) {
+      _isScrolled.value = true;
+    } else {
+      _isScrolled.value = false;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       extendBodyBehindAppBar: true,
-      key: scaffoldState,
-      appBar: MyAppbar(
-        pageName: ConstTexts.meraj,
-        onPressDrawer: () => scaffoldState.currentState!.openDrawer(),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: ValueListenableBuilder(
+          valueListenable: _isScrolled,
+          builder: (context, value, child) {
+            return MyAppbar(
+              pageName: ConstTexts.meraj,
+              showSettingsButton: true,
+              backgroundColor: _isScrolled.value
+                  ? context.isDarkMode
+                        ? ConstColors.darkBackAppBar
+                        : ConstColors.lightBackAppBar
+                  : null,
+            );
+          },
+        ),
       ),
-      drawer: AppDrawer(),
+
       body: SpecialBody(
         body: isLoading
-            ? Porgress()
+            ? const Porgress()
             : ListView.builder(
+                controller: _scrollController,
                 itemCount: azkar.length,
-                physics: BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 itemBuilder: (context, index) {
                   final id = azkar[index]['id'];
                   final title = azkar[index]['title'];
@@ -217,152 +261,146 @@ class _MerajState extends State<Meraj> {
                   final zikr = azkar[index]['zikr'];
                   return GestureDetector(
                     onTap: () {
-                      showDialog(
+                      showModalBottomSheet(
                         context: context,
-                        // isScrollControlled: true,
-                        // backgroundColor: Colors.transparent,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        clipBehavior: Clip.antiAlias,
+
                         builder: (context) {
-                          return Dialog(
-                            backgroundColor: Colors.transparent,
-                            insetPadding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 40,
+                          return Container(
+                            constraints: BoxConstraints(
+                              minHeight: context.screenSize.height * 0.6,
+                              maxHeight: context.screenSize.height * 0.8,
                             ),
-                            child: Container(
-                              padding: EdgeInsets.all(20),
-                              margin: EdgeInsets.symmetric(
-                                vertical: 40,
-                                horizontal: 10,
-                              ),
-                              decoration: BoxDecoration(
-                                color:
-                                    Theme.of(context).brightness ==
-                                        Brightness.dark
-                                    ? Colors.black
-                                    : Color(0xffECECEC),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  spacing: 40,
-                                  children: [
-                                    // data
-                                    Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      spacing: 20,
-                                      children: [
-                                        ...[
-                                          _sectionTitle(
-                                            "الذكر المراد قوله",
-                                            context,
-                                          ),
-                                          _zikrContentText(context, zikr),
-                                        ],
-
-                                        ...[
-                                          _sectionTitle("التكرار", context),
-                                          _zikrContentText(
-                                            context,
-                                            "${Tafqeet.convert(repeat.toString())} ${(repeat == 0
-                                                ? "مرة"
-                                                : (repeat >= 3 && repeat <= 10) || (repeat > 100 && repeat % 100 >= 3 && repeat % 100 <= 10)
-                                                ? "مرات"
-                                                : "مرة")}",
-                                          ),
-                                        ],
-
-                                        ...[
-                                          _sectionTitle("الفضل", context),
-
-                                          _zikrContentText(context, source),
-                                        ],
-                                        ...[
-                                          _sectionTitle("الإسناد", context),
-
-                                          _zikrContentText(context, grade),
-                                        ],
+                            clipBehavior: Clip.antiAlias,
+                            alignment: Alignment.center,
+                            // height: context.screenSize.height * .8,
+                            margin: const EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              gradient: ConstColors.tealGradient,
+                            ),
+                            child: SingleChildScrollView(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                spacing: 40,
+                                children: [
+                                  // data
+                                  Column(
+                                    mainAxisSize: MainAxisSize.max,
+                                    spacing: 20,
+                                    children: [
+                                      ...[
+                                        _sectionTitle(
+                                          "الذكر المراد قوله",
+                                          context,
+                                        ),
+                                        _zikrContentText(context, zikr),
                                       ],
-                                    ),
 
-                                    // start button
-                                    Row(
-                                      spacing: 4,
-                                      children: [
-                                        Expanded(
-                                          flex: 4,
-                                          child: GestureDetector(
-                                            onTap: () async {
-                                              Navigator.pop(context);
+                                      ...[
+                                        _sectionTitle("التكرار", context),
+                                        _zikrContentText(
+                                          context,
+                                          "${Tafqeet.convert(repeat.toString())} ${(repeat == 0
+                                              ? "مرة"
+                                              : (repeat >= 3 && repeat <= 10) || (repeat > 100 && repeat % 100 >= 3 && repeat % 100 <= 10)
+                                              ? "مرات"
+                                              : "مرة")}",
+                                        ),
+                                      ],
 
-                                              await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      MerajZikrCounter(
-                                                        id: id,
-                                                        zikr: zikr,
-                                                        repeat: repeat,
-                                                        title: title,
-                                                        fontSizeFactor: widget
-                                                            .fontSizeFactor,
-                                                      ),
-                                                ),
-                                              );
+                                      ...[
+                                        _sectionTitle("الفضل", context),
 
-                                              setState(() {});
-                                            },
-                                            child: Container(
-                                              padding: EdgeInsets.symmetric(
-                                                vertical: 12,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                gradient: ConstColors
-                                                    .mainGradientColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              alignment: Alignment.center,
-                                              child: Text(
-                                                "قول الذكر",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium!
-                                                    .copyWith(
-                                                      color: Colors.white,
+                                        _zikrContentText(context, source),
+                                      ],
+                                      ...[
+                                        _sectionTitle("الإسناد", context),
+
+                                        _zikrContentText(context, grade),
+                                      ],
+                                    ],
+                                  ),
+
+                                  // start button
+                                  Row(
+                                    spacing: 4,
+                                    children: [
+                                      Expanded(
+                                        flex: 4,
+                                        child: GestureDetector(
+                                          onTap: () async {
+                                            Navigator.pop(context);
+
+                                            await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    MerajZikrCounter(
+                                                      id: id,
+                                                      zikr: zikr,
+                                                      repeat: repeat,
+                                                      title: title,
+                                                      fontSizeFactor:
+                                                          widget.fontSizeFactor,
                                                     ),
                                               ),
+                                            );
+
+                                            setState(() {});
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: ConstColors.goldAccent,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                              "قول الذكر",
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium!
+                                                  .copyWith(
+                                                    color:
+                                                        ConstColors.primaryTeal,
+                                                  ),
                                             ),
                                           ),
                                         ),
-                                        Expanded(
-                                          flex: 1,
-                                          child: FilledButton.icon(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            style: FilledButton.styleFrom(
-                                              padding: EdgeInsets.symmetric(
-                                                vertical: 14,
-                                              ),
-                                              backgroundColor:
-                                                  ConstColors.input,
-                                              side: BorderSide.none,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                            label: Icon(
-                                              Icons.close,
-                                              color: ConstColors.mainColor,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                                      ),
+                                      // Expanded(
+                                      //   flex: 1,
+                                      //   child: FilledButton.icon(
+                                      //     onPressed: () {
+                                      //       Navigator.pop(context);
+                                      //     },
+                                      //     style: FilledButton.styleFrom(
+                                      //       padding: const EdgeInsets.symmetric(
+                                      //         vertical: 14,
+                                      //       ),
+                                      //       backgroundColor: Colors.transparent,
+                                      //       side: BorderSide.none,
+                                      //       shape: RoundedRectangleBorder(
+                                      //         borderRadius:
+                                      //             BorderRadius.circular(10),
+                                      //       ),
+                                      //     ),
+                                      //     label: Icon(
+                                      //       Icons.close,
+                                      //       color: ConstColors.goldAccent,
+                                      //     ),
+                                      //   ),
+                                      // ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
                           );
@@ -375,13 +413,13 @@ class _MerajState extends State<Meraj> {
                       children: [
                         //zikr
                         Container(
-                          padding: EdgeInsets.all(24),
-                          margin: EdgeInsets.symmetric(vertical: 14),
+                          padding: const EdgeInsets.all(24),
+                          margin: const EdgeInsets.symmetric(vertical: 14),
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            gradient: ConstColors.mainGradientColor,
+                            gradient: ConstColors.tealGradient,
                             borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
+                            boxShadow: const [
                               BoxShadow(
                                 color: Colors.black26,
                                 offset: Offset(0, 2),
@@ -403,8 +441,8 @@ class _MerajState extends State<Meraj> {
                               ),
                               Container(
                                 width: double.infinity,
-                                margin: EdgeInsets.only(top: 16),
-                                padding: EdgeInsets.symmetric(
+                                margin: const EdgeInsets.only(top: 16),
+                                padding: const EdgeInsets.symmetric(
                                   vertical: 12,
                                   horizontal: 8,
                                 ),
@@ -434,9 +472,9 @@ class _MerajState extends State<Meraj> {
                         //repeating
                         Container(
                           width: MediaQuery.sizeOf(context).width * 0.2,
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: ConstColors.secondMainColor,
+                          padding: const EdgeInsets.all(10),
+                          decoration: const BoxDecoration(
+                            color: ConstColors.goldAccent,
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(20),
                               topRight: Radius.circular(20),
@@ -469,7 +507,7 @@ class _MerajState extends State<Meraj> {
                             final isCompleted = snapshot.data ?? false;
 
                             if (!isCompleted) {
-                              return SizedBox();
+                              return const SizedBox();
                             }
 
                             return Positioned(
@@ -490,7 +528,9 @@ class _MerajState extends State<Meraj> {
                                       "تم",
 
                                       style: TextStyle(
-                                        color: ConstColors.secondMainColor,
+                                        color: context.isDarkMode
+                                            ? ConstColors.goldAccent
+                                            : ConstColors.primaryTeal,
                                         fontSize: 12,
                                       ),
                                     ),
@@ -515,16 +555,17 @@ Widget _sectionTitle(String title, BuildContext context) {
     width: double.infinity,
     padding: const EdgeInsets.symmetric(vertical: 1),
     decoration: BoxDecoration(
-      color: ConstColors.secondMainColor,
+      color: ConstColors.goldAccent.withValues(alpha: .05),
+      border: Border.all(color: ConstColors.goldAccent, width: .4),
       borderRadius: BorderRadius.circular(10),
     ),
     child: Text(
       title,
       textAlign: TextAlign.center,
-      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+      style: const TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: 14,
-        color: Colors.black,
+        color: ConstColors.goldAccent,
       ),
     ),
   );
@@ -534,6 +575,10 @@ Widget _zikrContentText(BuildContext context, String content) {
   return Text(
     content,
     textAlign: TextAlign.center,
-    style: Theme.of(context).textTheme.bodyMedium,
+    style: const TextStyle(
+      fontSize: 18,
+      fontFamily: 'arsura',
+      color: ConstColors.goldAccent,
+    ),
   );
 }

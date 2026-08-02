@@ -8,11 +8,11 @@ import 'package:path_provider/path_provider.dart';
 class AllahNamesLogic {
   List<Map<String, String>> data = [];
   Future<void> fetchData() async {
-    final Uri _url = Uri.parse(
+    final Uri url = Uri.parse(
       'https://surahquran.com/99-Names-of-Allah-with-Meaning.html',
     );
     try {
-      final response = await http.get(_url);
+      final response = await http.get(url);
       if (response.statusCode == 200) {
           final utf8Body = utf8.decode(response.bodyBytes);
         //get the body of html page and convert to clear document

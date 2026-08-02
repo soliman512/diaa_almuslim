@@ -1,4 +1,4 @@
-package com.example.zad_almuslim
+package com.example.diaa_almuslim
 
 import io.flutter.embedding.android.FlutterActivity
 

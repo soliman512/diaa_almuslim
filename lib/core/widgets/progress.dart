@@ -1,5 +1,6 @@
+import 'package:diaa_almuslim/core/utils/theme_mode_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:zad_almuslim/core/constants/colors.dart';
+import 'package:diaa_almuslim/core/constants/colors.dart';
 
 class Porgress extends StatelessWidget {
   const Porgress({super.key});
@@ -8,10 +9,12 @@ class Porgress extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: SizedBox(
-        width: MediaQuery.sizeOf(context).width * .3,
-        height: MediaQuery.sizeOf(context).width * .3,
+        width: context.screenSize.width * .3,
+        height: context.screenSize.width * .3,
         child: CircularProgressIndicator(
-          color: ConstColors.mainColor,
+          color: context.isDarkMode
+              ? ConstColors.goldAccent
+              : ConstColors.primaryTeal,
           strokeWidth: 2,
         ),
       ),

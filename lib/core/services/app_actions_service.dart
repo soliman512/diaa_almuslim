@@ -1,193 +1,145 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:zad_almuslim/core/constants/colors.dart';
-import 'package:zad_almuslim/core/constants/icons.dart';
-import 'package:zad_almuslim/core/constants/textes.dart';
+import 'package:diaa_almuslim/core/constants/colors.dart';
+import 'package:diaa_almuslim/core/constants/icons.dart';
+import 'package:diaa_almuslim/core/constants/textes.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}
+
 class AppActionsService {
-  // static List<String> fontSizes = ["صغير", "متوسط", "كبير"];
-  // static String selectedSize = "متوسط";
-  static String? globalCurrentVersoin;
+  static String? globalCurrentVersion;
   static String? globalAppSharingLink;
   static bool? globalCheckCurrentVersion;
-  static Future<void> checkAppUpdate(BuildContext context) async {
-    final url = Uri.parse(
-      "https://api.github.com/repos/${ConstTexts.githubUsername}/${ConstTexts.repoName}/releases/latest",
-    );
 
-    try {
-      final response = await http.get(url);
+  static const String appName = "ضياء المسلم";
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        String latestVersion = data['tag_name'];
-        String downloadUrl =
-            (data['assets'] != null && data['assets'].isNotEmpty)
-            ? data['assets'][0]['browser_download_url']
-            : data['html_url'];
-        globalAppSharingLink = downloadUrl;
-        latestVersion = latestVersion.replaceAll('v', '').trim();
+  // static Future<void> fetchLatestReleaseInfo() async {
+  //   final url = Uri.parse(
+  //     "https://api.github.com/repos/${ConstTexts.githubUsername}/${ConstTexts.repoName}/releases/latest",
+  //   );
+  //   try {
+  //     final response = await http.get(url);
+  //     if (response.statusCode == 200) {
+  //       final data = jsonDecode(response.body);
 
-        PackageInfo packageInfo = await PackageInfo.fromPlatform();
-        String currentVersion = packageInfo.version;
-        globalCurrentVersoin = currentVersion;
-        globalCheckCurrentVersion = currentVersion == latestVersion;
-        if (currentVersion != latestVersion) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => AlertDialog(
-              elevation: 30,
-              title: Text(
-                "تحديث جديد متاح",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: ConstColors.mainColor,
-                ),
-              ),
-              content: const Text(
-                "يتوفر إصدار جديد من التطبيق \nيرجى التحديث الآن للحصول على آخر الميزات والتحسينات واستقرار الاتصال.",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 15, height: 1.5),
-              ),
-              actionsAlignment: MainAxisAlignment.center,
-              actionsPadding: const EdgeInsets.only(
-                bottom: 16,
-                left: 16,
-                right: 16,
-              ),
-              actions: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ConstColors.mainColor,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 0,
-                  ),
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    final Uri uri = Uri.parse(downloadUrl);
-                    if (!await launchUrl(uri)) {
-                      showErrorSnackBar(context, "هناك مشكلة ، حاول لاحقا");
-                    }
-                  },
-                  child: const Text(
-                    "تحديث الآن",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                ),
+  //       globalAppSharingLink =
+  //           (data['assets'] != null && data['assets'].isNotEmpty)
+  //           ? data['assets'][0]['browser_download_url']
+  //           : data['html_url'];
 
-                TextButton(
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.grey,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text("لاحقاً", style: TextStyle(fontSize: 14)),
-                ),
-              ],
-            ),
-          );
-        }
-      } else {
-        throw Exception("Failed to load release info");
-      }
-    } catch (e) {
-      debugPrint("Update Check Error: $e");
-      if (context.mounted) {
-        showErrorSnackBar(context, "تعذر التحقق من وجود تحديثات حالياً");
-      }
-    }
-  }
+  //       String latestVersion = data['tag_name']
+  //           .toString()
+  //           .replaceAll('v', '')
+  //           .trim();
 
-  static Future<bool> hasNewUpdate() async {
-    final url = Uri.parse(
-      "https://api.github.com/repos/${ConstTexts.githubUsername}/${ConstTexts.repoName}/releases/latest",
-    );
+  //       PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  //       globalCurrentVersion = "1.0.0";
 
-    try {
-      final response = await http.get(url).timeout(const Duration(seconds: 5));
+  //       globalCheckCurrentVersion = (globalCurrentVersion == latestVersion);
+  //     }
+  //   } catch (e) {
+  //     debugPrint("Fetch Release Info Error: $e");
+  //   }
+  // }
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        String latestVersion = data['tag_name'];
+  // static Future<void> checkAppUpdate(BuildContext context) async {
+  //   await fetchLatestReleaseInfo();
 
-        globalAppSharingLink =
-            (data['assets'] != null && data['assets'].isNotEmpty)
-            ? data['assets'][0]['browser_download_url']
-            : data['html_url'];
+  //   if (!context.mounted) return;
 
-        latestVersion = latestVersion.replaceAll('v', '').trim();
-
-        PackageInfo packageInfo = await PackageInfo.fromPlatform();
-        String currentVersion = packageInfo.version.trim();
-
-        globalCurrentVersoin = currentVersion;
-
-        if (currentVersion != latestVersion) {
-          globalCheckCurrentVersion = false;
-          return true;
-        }
-        debugPrint("--- [DEBUG] Server Version: '$latestVersion'");
-        debugPrint("--- [DEBUG] Local Version: '$currentVersion'");
-        globalCheckCurrentVersion = true;
-        return false;
-      }
-    } catch (e) {
-      debugPrint("Silent Update Check Error: $e");
-    }
-    return false;
-  }
-
-  static Future<void> fetchLatestReleaseInfo() async {
-    final url = Uri.parse(
-      "https://api.github.com/repos/${ConstTexts.githubUsername}/${ConstTexts.repoName}/releases/latest",
-    );
-
-    try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        String latestVersion = data['tag_name'];
-        String downloadUrl =
-            (data['assets'] != null && data['assets'].isNotEmpty)
-            ? data['assets'][0]['browser_download_url']
-            : data['html_url'];
-
-        globalAppSharingLink = downloadUrl;
-        latestVersion = latestVersion.replaceAll('v', '').trim();
-
-        PackageInfo packageInfo = await PackageInfo.fromPlatform();
-        String currentVersion = packageInfo.version;
-        globalCurrentVersoin = currentVersion;
-        globalCheckCurrentVersion = currentVersion == latestVersion;
-      }
-    } catch (e) {
-      debugPrint("Fetch Release Info Error: $e");
-    }
-  }
+  //   if (globalCheckCurrentVersion == false && globalAppSharingLink != null) {
+  //     showDialog(
+  //       context: context,
+  //       barrierDismissible: false,
+  //       builder: (context) => AlertDialog(
+  //         elevation: 30,
+  //         title: const Text(
+  //           "تحديث جديد متاح",
+  //           textAlign: TextAlign.center,
+  //           style: TextStyle(
+  //             fontSize: 20,
+  //             fontWeight: FontWeight.bold,
+  //             color: ConstColors.mainColor,
+  //           ),
+  //         ),
+  //         content: const Text(
+  //           "يتوفر إصدار جديد من التطبيق \nيرجى التحديث الآن للحصول على آخر الميزات والتحسينات واستقرار الاتصال.",
+  //           textAlign: TextAlign.center,
+  //           style: TextStyle(fontSize: 15, height: 1.5),
+  //         ),
+  //         actionsAlignment: MainAxisAlignment.center,
+  //         actions: [
+  //           ElevatedButton(
+  //             style: ElevatedButton.styleFrom(
+  //               backgroundColor: ConstColors.mainColor,
+  //               foregroundColor: Colors.white,
+  //               shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(8),
+  //               ),
+  //             ),
+  //             onPressed: () async {
+  //               Navigator.pop(context);
+  //               final Uri uri = Uri.parse(globalAppSharingLink!);
+  //               if (!await launchUrl(uri)) {
+  //                 if (context.mounted)
+  //                   showErrorSnackBar(context, "هناك مشكلة ، حاول لاحقا");
+  //               }
+  //             },
+  //             child: const Text(
+  //               "تحديث الآن",
+  //               style: TextStyle(fontWeight: FontWeight.bold),
+  //             ),
+  //           ),
+  //           TextButton(
+  //             onPressed: () => Navigator.pop(context),
+  //             child: const Text("لاحقاً", style: TextStyle(color: Colors.grey)),
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  //   } else if (globalCheckCurrentVersion == null) {
+  //     showErrorSnackBar(context, "تعذر التحقق من وجود تحديثات حالياً");
+  //   }
+  // }
 
   static void openBasaerOnTiktok(BuildContext context) async {
     final url = Uri.parse(ConstTexts.basaerChannelUrl);
     if (!await launchUrl(url)) {
-      showErrorSnackBar(context, "يبدو ان هنالك مشكلة ، حاول لاحقا");
+      if (context.mounted) {
+        showErrorSnackBar(context, "يبدو ان هنالك مشكلة ، حاول لاحقا");
+      }
+    }
+  }
+
+  static void shareApp(BuildContext context) async {
+    String fallbackLink =
+        "https://github.com/${ConstTexts.githubUsername}/${ConstTexts.repoName}/releases";
+    String finalLink = globalAppSharingLink ?? fallbackLink;
+
+    // استخدام الاسم الصحيح هنا
+    String message =
+        "【 $appName 】\n\n"
+        "تطبيق إسلامي — صدقة جارية، أذكار، وأدعية شاملة، بمميزات وبدون أي إعلانات لتوفير تجربة هادئة ومريحة.\n\n"
+        "ساهم في نشر الخير فالدّال على الخير كفاعله، يمكنك تحميل التطبيق مباشرة عبر الرابط التالي:\n"
+        "$finalLink\n\n"
+        "ــــــــــــــــــــــــــــــــــــــــ\n"
+        "تطبيق $appName | ونيس المسلم اليومي";
+
+    if (context.mounted) {
+      await SharePlus.instance.share(ShareParams(text: message));
     }
   }
 
@@ -196,11 +148,12 @@ class AppActionsService {
       SnackBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         behavior: SnackBarBehavior.floating,
         content: AwesomeSnackbarContent(
           title: "تم",
           message: message,
-          color: ConstColors.mainColor,
+          color: ConstColors.primaryTeal,
           contentType: ContentType.success,
         ),
       ),
@@ -212,28 +165,24 @@ class AppActionsService {
       SnackBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         behavior: SnackBarBehavior.floating,
         content: AwesomeSnackbarContent(
           title: "فشل",
           message: message,
-          color: ConstColors.mainColor,
+          color: ConstColors.primaryTeal,
           contentType: ContentType.failure,
         ),
       ),
     );
   }
 
-  // ====================== Send Email ======================
   static Future<void> sendEmail(BuildContext context, String message) async {
     try {
       final url = Uri.parse("https://api.emailjs.com/api/v1.0/email/send");
-
       final response = await http.post(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Origin': 'http://localhost',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'service_id': 'service_p6uvup9',
           'template_id': 'template_qtfr8c4',
@@ -242,24 +191,17 @@ class AppActionsService {
           'template_params': {'message': message},
         }),
       );
-
-      if (response.statusCode == 200) {
-        print("تم إرسال الملاحظة بنجاح");
-      } else {
+      if (response.statusCode != 200) {
         debugPrint("EmailJS Error: ${response.body}");
-        print("هناك مشكلة في الاتصال");
       }
     } catch (e) {
       debugPrint("SendEmail Exception: $e");
-      print("حدث خطأ: $e");
     }
   }
 
-  // ====================== Send Rating ======================
   static Future<void> sendRating(BuildContext context, int rate) async {
     try {
       final url = Uri.parse("https://api.emailjs.com/api/v1.0/email/send");
-
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -271,63 +213,35 @@ class AppActionsService {
           'template_params': {'stars': rate},
         }),
       );
-
-      if (response.statusCode == 200) {
-        print("شكرا لتقييمك لنا");
-      } else {
+      if (response.statusCode != 200) {
         debugPrint("EmailJS Rating Error: ${response.body}");
-        print("هناك مشكلة في الاتصال");
       }
     } catch (e) {
       debugPrint("SendRating Exception: $e");
-      print("حدث خطأ أثناء إرسال التقييم");
     }
   }
 
-  // ====================== Rating Dialog ======================
+  // ====================== إظهار النوافذ المنبثقة ======================
   static void showRatingDialog(BuildContext context) {
     showDialog(context: context, builder: (context) => const RateDialog());
   }
 
-  // ====================== Rating Dialog ======================
   static void showNoteDialog(BuildContext context) {
     showDialog(context: context, builder: (context) => const NoteDialog());
   }
-
-  // ====================== share app ======================
-
-  static void shareApp(BuildContext context) async {
-    if (globalAppSharingLink == null) {
-      await fetchLatestReleaseInfo();
-    }
-
-    String fallbackLink =
-        "https://github.com/${ConstTexts.githubUsername}/${ConstTexts.repoName}/releases";
-    String finalLink = globalAppSharingLink ?? fallbackLink;
-
-    String message =
-        "【 ${ConstTexts.appName} 】\n\n"
-        "تطبيق إسلامي — صدقة جارية، أذكار، وأدعية شاملة، بمميزات وبدون أي إعلانات لتوفير تجربة هادئة ومريحة.\n\n"
-        "ساهم في نشر الخير فالدّال على الخير كفاعله، يمكنك تحميل التطبيق مباشرة عبر الرابط التالي:\n"
-        "$finalLink\n\n"
-        "ــــــــــــــــــــــــــــــــــــــــ\n"
-        "تطبيق ${ConstTexts.appName} | ونيس المسلم اليومي";
-
-    if (context.mounted) {
-      await SharePlus.instance.share(ShareParams(text: message));
-    }
-  }
 }
+
+
 
 class RateDialog extends StatefulWidget {
   const RateDialog({super.key});
-
   @override
   State<RateDialog> createState() => _RateDialogState();
 }
 
 class _RateDialogState extends State<RateDialog> {
   double userRating = 3.0;
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -335,10 +249,10 @@ class _RateDialogState extends State<RateDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            "قم بتقييمنا لمساعدتنا في تطوير ${ConstTexts.appName}",
+          const Text(
+            "قم بتقييمنا لمساعدتنا في تطوير ${AppActionsService.appName}",
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.grey, fontSize: 14),
+            style: TextStyle(color: Colors.grey, fontSize: 14),
           ),
           const SizedBox(height: 24),
           RatingBar.builder(
@@ -362,24 +276,19 @@ class _RateDialogState extends State<RateDialog> {
       actions: [
         ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: ConstColors.mainColor,
+            backgroundColor: ConstColors.primaryTeal,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
           ),
           onPressed: () {
-            try {
-              final stars = userRating.toInt();
-              Navigator.pop(context);
-              AppActionsService.sendRating(context, stars);
-
-              AppActionsService.showSuccessSnackBar(
-                context,
-                "تم ارسال تقييمك ، شكرا لتفاعلك",
-              );
-            } catch (e) {
-              AppActionsService.showErrorSnackBar(context, e.toString());
-            }
+            final stars = userRating.toInt();
+            Navigator.pop(context);
+            AppActionsService.sendRating(context, stars);
+            AppActionsService.showSuccessSnackBar(
+              context,
+              "تم ارسال تقييمك ، شكرا لتفاعلك",
+            );
           },
           child: const Text(
             "إرسال التقييم",
@@ -397,7 +306,6 @@ class _RateDialogState extends State<RateDialog> {
 
 class NoteDialog extends StatefulWidget {
   const NoteDialog({super.key});
-
   @override
   State<NoteDialog> createState() => _NoteDialogState();
 }
@@ -406,91 +314,74 @@ class _NoteDialogState extends State<NoteDialog> {
   final TextEditingController noteController = TextEditingController();
 
   @override
+  void dispose() {
+    noteController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      child: AlertDialog(
-        backgroundColor: Theme.of(context).brightness == Brightness.light
-            ? Colors.white
-            : Colors.grey[900],
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 20,
-          children: [
-            TextField(
-              controller: noteController,
-              textInputAction: TextInputAction.newline,
-              keyboardType: TextInputType.multiline,
-              maxLines: null,
-              minLines: 3,
-              autocorrect: true,
-              autofocus: true,
-              cursorColor: ConstColors.mainColor,
-
-              style: Theme.of(context).textTheme.bodyMedium,
-              decoration: InputDecoration(
-                hintText: "ما الملاحظة ؟ ...",
-                hintStyle: TextStyle(color: Colors.black26),
-                filled: true,
-                fillColor: Theme.of(context).brightness == Brightness.light
-                    ? ConstColors.input
-                    : Colors.grey[800],
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 16,
-                ),
-
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide.none,
-                ),
-
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide.none,
-                ),
-
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide.none,
-                ),
+    return AlertDialog(
+      backgroundColor: isDark ? Colors.grey[900] : Colors.white,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: noteController,
+            textInputAction: TextInputAction.newline,
+            keyboardType: TextInputType.multiline,
+            maxLines: null,
+            minLines: 3,
+            autofocus: true,
+            cursorColor: ConstColors.primaryTeal,
+            style: Theme.of(context).textTheme.bodyMedium,
+            decoration: InputDecoration(
+              hintText: "ما الملاحظة ؟ ...",
+              hintStyle: const TextStyle(color: Colors.black26),
+              filled: true,
+              fillColor: isDark ? Colors.grey[800] : ConstColors.input,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 16,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide.none,
               ),
             ),
-            GestureDetector(
-              onTap: () {
-                if (!mounted) return;
-                if (noteController.text.trim().isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("الحقل فارغ !"),
-                      backgroundColor: Colors.deepOrange,
-                    ),
-                  );
-                } else {
-                  try {
-                    AppActionsService.sendEmail(context, noteController.text);
-                    Navigator.pop(context);
-                    noteController.clear();
-                    AppActionsService.showSuccessSnackBar(
-                      context,
-                      "تم ارسال ملاحظتك عبر الأيميل ، شكرا لاهتمامك",
-                    );
-                  } catch (e) {
-                    AppActionsService.showErrorSnackBar(context, e.toString());
-                  }
-                }
-              },
-              child: Container(
-                padding: EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: ConstColors.mainGradientColor,
-                ),
-                child: Image.asset(ConstIcons.confirmSendNotes, width: 22),
+          ),
+          const SizedBox(height: 20),
+          GestureDetector(
+            onTap: () {
+              if (noteController.text.trim().isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("الحقل فارغ !"),
+                    backgroundColor: Colors.deepOrange,
+                  ),
+                );
+                return;
+              }
+
+              AppActionsService.sendEmail(context, noteController.text);
+              Navigator.pop(context);
+              AppActionsService.showSuccessSnackBar( 
+                context,
+                "تم ارسال ملاحظتك عبر الأيميل ، شكرا لاهتمامك",
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: ConstColors.mainGradientColor,
               ),
+              child: Image.asset(ConstIcons.confirmSendNotes, width: 22),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

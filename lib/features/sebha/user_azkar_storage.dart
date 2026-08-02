@@ -4,9 +4,9 @@ import 'package:path_provider/path_provider.dart';
 
 class UserAzkarStorage {
   static const String _fileName = "user_azkar_storage.json";
+
   Future<File> get _localFile async {
     final directory = await getApplicationDocumentsDirectory();
-
     return File("${directory.path}/$_fileName");
   }
 
@@ -17,45 +17,43 @@ class UserAzkarStorage {
     }
   }
 
-  Future<void> addNewZikr(Map<String, dynamic> newZikr) async {
+  // إضافة ذكر جديد كـ String
+  Future<void> addNewZikr(String zikrText) async {
     try {
       await ensureFileExists();
       final file = await _localFile;
-      String content = await file.readAsString();
-      List azkarList = await jsonDecode(content);
-      azkarList.add(newZikr);
+      List<String> azkarList = await loadUserAzkar();
+      azkarList.add(zikrText);
       await file.writeAsString(jsonEncode(azkarList));
     } catch (e) {
-      print("there is exception in add new zikr\n e: $e");
+      print("Exception in add new zikr: $e");
     }
   }
 
-  Future<List<Map<String, dynamic>>> loadUserAzkar() async {
+  // تحميل قائمة الأذكار كـ List<String>
+  Future<List<String>> loadUserAzkar() async {
     try {
       await ensureFileExists();
-
       final file = await _localFile;
-
       String content = await file.readAsString();
-
       List decodedData = jsonDecode(content);
-
-      return List<Map<String, dynamic>>.from(decodedData);
+      return List<String>.from(decodedData);
     } catch (e) {
-      print("there is exception in load user azkar\n e: $e");
+      print("Exception in load user azkar: $e");
       return [];
     }
   }
 
-  Future<void> removeZikr(int zikrId) async {
+  Future<void> removeZikrAt(int index) async {
     try {
       final file = await _localFile;
-      String content = await file.readAsString();
-      List azkarList = jsonDecode(content);
-      azkarList.removeWhere((item) => item['id'] == zikrId);
-      await file.writeAsString(jsonEncode(azkarList));
+      List<String> azkarList = await loadUserAzkar();
+      if (index >= 0 && index < azkarList.length) {
+        azkarList.removeAt(index);
+        await file.writeAsString(jsonEncode(azkarList));
+      }
     } catch (e) {
-      print("there is exception in remove zikr\n e: $e");
+      print("Exception in remove zikr: $e");
     }
   }
 }

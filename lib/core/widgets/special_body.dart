@@ -1,5 +1,7 @@
+import 'package:diaa_almuslim/core/constants/colors.dart';
+import 'package:diaa_almuslim/core/utils/theme_mode_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:zad_almuslim/core/constants/icons.dart';
+import 'package:diaa_almuslim/core/constants/icons.dart';
 
 // ignore: must_be_immutable
 class SpecialBody extends StatelessWidget {
@@ -19,14 +21,19 @@ class SpecialBody extends StatelessWidget {
             child: RotatedBox(
               quarterTurns: 2,
               child: Opacity(
-                opacity: 0.15,
-                child: Image.asset(ConstIcons.backgroundShape),
+                opacity: 0.1,
+                child: Image.asset(
+                  ConstIcons.backgroundShape,
+                  color: context.isDarkMode
+                      ? ConstColors.goldAccent
+                      : ConstColors.primaryTeal,
+                ),
               ),
             ),
           ),
         ),
         Padding(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: SizedBox(width: double.infinity, child: body),
         ),
       ],

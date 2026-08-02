@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 
 class DateManager {
+  
   static String getFormattedTime(DateTime time) {
     return DateFormat('h:mm').format(time);
   }

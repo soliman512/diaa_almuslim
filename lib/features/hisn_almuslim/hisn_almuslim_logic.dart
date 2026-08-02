@@ -1,8 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:zad_almuslim/core/constants/json_files.dart';
+import 'package:diaa_almuslim/core/constants/json_files.dart';
 
 class HisnAlmuslimLogic {
   static Future<dynamic> getData() async {

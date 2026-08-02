@@ -1,15 +1,19 @@
+import 'package:diaa_almuslim/core/widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:number_to_word_arabic/number_to_word_arabic.dart';
-import 'package:zad_almuslim/core/constants/colors.dart';
-import 'package:zad_almuslim/core/constants/textes.dart';
-import 'package:zad_almuslim/core/services/app_actions_service.dart';
-import 'package:zad_almuslim/core/utils/numbers_to_ar_format.dart';
-import 'package:zad_almuslim/core/widgets/appbar.dart';
-import 'package:zad_almuslim/core/widgets/drawer.dart';
-import 'package:zad_almuslim/core/widgets/progress.dart';
-import 'package:zad_almuslim/core/widgets/special_body.dart';
+import 'package:diaa_almuslim/core/constants/colors.dart';
+import 'package:diaa_almuslim/core/constants/textes.dart';
+import 'package:diaa_almuslim/core/services/app_actions_service.dart';
+import 'package:diaa_almuslim/core/utils/numbers_to_ar_format.dart';
+import 'package:diaa_almuslim/core/widgets/appbar.dart';
+import 'package:diaa_almuslim/core/widgets/progress.dart';
+import 'package:diaa_almuslim/core/widgets/special_body.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
-import 'package:zad_almuslim/features/prayer_azkar/prayer_azkar_logic.dart';
+import 'package:diaa_almuslim/features/prayer_azkar/prayer_azkar_logic.dart';
+
+extension DarkModeX on BuildContext {
+  bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
+}
 
 class PrayerAzkar extends StatefulWidget {
   const PrayerAzkar({super.key, this.fontSizeFactor = 1.0});
@@ -20,84 +24,191 @@ class PrayerAzkar extends StatefulWidget {
 }
 
 class _PrayerAzkarState extends State<PrayerAzkar> {
-  GlobalKey<ScaffoldState> scaffoldState = GlobalKey<ScaffoldState>();
-  final CardSwiperController controller = CardSwiperController();
-  List azkar = [];
-  bool isLoading = true;
-  int counter = 0;
+  final CardSwiperController _controller = CardSwiperController();
+  final ValueNotifier<int> _counter = ValueNotifier<int>(0);
+  final ValueNotifier<int> _currentIndex = ValueNotifier<int>(0);
 
-  int currentIndex = 0;
+  List _azkar = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAzkar();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _counter.dispose();
+    _currentIndex.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadAzkar() async {
+    try {
+      _azkar = await PrayerAzkarLogic.getPrayerAzkar();
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      AppActionsService.showErrorSnackBar(context, e.toString());
+    }
+  }
 
   bool _onSwipe(
     int previousIndex,
     int? nextIndex,
     CardSwiperDirection direction,
   ) {
-    debugPrint(
-      'The card $previousIndex was swiped. Now card $nextIndex is on top',
-    );
-
-    setState(() {
-      currentIndex = nextIndex ?? 0;
-      counter = 0;
-    });
+    _currentIndex.value = nextIndex ?? 0;
+    _counter.value = 0;
     return true;
   }
 
   bool _onUndo(int? previousIndex, int index, CardSwiperDirection direction) {
-    debugPrint('The card $index was undod');
-    setState(() {
-      currentIndex = index;
-      counter = 0;
-    });
+    _currentIndex.value = index;
+    _counter.value = 0;
     return true;
   }
 
   void _onEnd() {
-    showDialog(
-      barrierDismissible: true,
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: ConstColors.deepOrange,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        elevation: 12,
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 12),
-            Text(
-              "تقبل الله صلاتك\nثبتك الله وزادك",
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
+      backgroundColor: ConstColors.primaryTeal,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+      builder: (context) => _buildCompletionBottomSheet(context),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AppScaffold(
+      extendBodyBehindAppBar: true,
+      appBar: MyAppbar(
+        pageName: ConstTexts.prayerAzkar,
+        showSettingsButton: true,
+      ),
+      body: SpecialBody(
+        body: _isLoading
+            ? const Porgress()
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(),
+                  SizedBox(
+                    height: MediaQuery.sizeOf(context).height * 0.5,
+                    width: double.infinity,
+                    child: CardSwiper(
+                      controller: _controller,
+                      cardsCount: _azkar.length,
+                      onSwipe: _onSwipe,
+                      onUndo: _onUndo,
+                      onEnd: _onEnd,
+                      allowedSwipeDirection: const AllowedSwipeDirection.only(
+                        right: true,
+                        left: true,
+                      ),
+                      backCardOffset: const Offset(0, -30),
+                      numberOfCardsDisplayed: 3,
+                      isLoop: false,
+                      padding: EdgeInsets.zero,
+                      cardBuilder:
+                          (
+                            context,
+                            index,
+                            horizontalThreshold,
+                            verticalThreshold,
+                          ) {
+                            return _buildAzkarCard(
+                              context,
+                              _azkar[index],
+                              index,
+                            );
+                          },
+                    ),
+                  ),
+                  const Spacer(),
+                  _buildFooterActionBar(context),
+                  const SizedBox(height: 20),
+                ],
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-          ],
-        ),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: ConstColors.deepOrange,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+      ),
+    );
+  }
+
+  Widget _buildAzkarCard(
+    BuildContext context,
+    Map<String, dynamic> zikr,
+    int index,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: ConstColors.tealGradient,
+        borderRadius: BorderRadius.circular(35),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 25,
+            offset: Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              const Expanded(child: Divider(color: Colors.white30)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  (index + 1).toString().toArabicFormat(),
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            ),
-            child: SizedBox(
-              width: double.infinity,
-              child: const Text(
-                "آمين",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
+              const Expanded(child: Divider(color: Colors.white30)),
+            ],
+          ),
+          Expanded(
+            child: MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: TextScaler.linear(widget.fontSizeFactor)),
+              child: Center(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        zikr["content"],
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'arsura',
+                          fontSize: 22,
+                          height: 1.8,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 32),
+                      _buildRepeatBadge(context, zikr["repeat"]),
+                      if (zikr["time"] != null) ...[
+                        const SizedBox(height: 12),
+                        _buildTimeBadge(context, zikr["time"]),
+                      ],
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -106,280 +217,215 @@ class _PrayerAzkarState extends State<PrayerAzkar> {
     );
   }
 
-  void getPrayerAzkar() async {
-    try {
-      azkar = await PrayerAzkarLogic.getPrayerAzkar();
-      setState(() {
-        isLoading = false;
-      });
-    } catch (e) {
-      if(!mounted) {
-        return;
-      }
-      AppActionsService.showErrorSnackBar(context, e.toString());
-    }
-  }
+  Widget _buildFooterActionBar(BuildContext context) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_counter, _currentIndex]),
+      builder: (context, _) {
+        final int currentRepeat =
+            (_azkar.isNotEmpty && _currentIndex.value < _azkar.length)
+            ? (_azkar[_currentIndex.value]["repeat"] ?? 1)
+            : 1;
+        final bool isCounterEqualRepeat = _counter.value >= currentRepeat;
 
-  @override
-  void initState() {
-    getPrayerAzkar();
-    super.initState();
-  }
-@override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-  @override
-  Widget build(BuildContext context) {
-    int currentRepeat = (azkar.isNotEmpty && currentIndex < azkar.length)
-        ? (azkar[currentIndex]["repeat"] ?? 1)
-        : 1;
-
-    bool isCounterEqualRepeat = counter >= currentRepeat;
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      key: scaffoldState,
-      appBar: MyAppbar(
-        pageName: ConstTexts.prayerAzkar,
-        onPressDrawer: () => scaffoldState.currentState!.openDrawer(),
-      ),
-      drawer: AppDrawer(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Container(
-        clipBehavior: Clip.antiAlias,
-        padding: EdgeInsets.all(12),
-        height: MediaQuery.sizeOf(context).height * .1,
-        decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark
-              ? Colors.black
-              : Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              offset: Offset(0, -6),
-              blurRadius: 12,
-            ),
-          ],
-          border: Border.all(color: ConstColors.mainColor, width: 1.4),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(50)),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 12,
-          children: [
-            Expanded(
-              flex: 2,
-
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  if (counter + 1 >= currentRepeat) {
-                    setState(() {
-                      counter = currentRepeat;
-                    });
-                    await Future.delayed(Duration(milliseconds: 150));
-                    controller.swipe(CardSwiperDirection.bottom);
-                  } else {
-                    setState(() {
-                      counter++;
-                    });
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isCounterEqualRepeat
-                      ? ConstColors.mainColor
-                      : ConstColors.deepOrange,
-                  padding: EdgeInsets.zero,
-                ),
-                label: Text(
-                  counter.toString().toArabicFormat(),
-                  style: TextStyle(color: Colors.white, fontSize: 22),
-                ),
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          decoration: BoxDecoration(
+            color: ConstColors.primaryTeal,
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 30,
+                offset: Offset(0, 8),
               ),
-            ),
-            Expanded(
-              flex: 2,
-              child: ElevatedButton.icon(
-                onPressed: () => controller.swipe(CardSwiperDirection.bottom),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ConstColors.mainColor,
-                  padding: EdgeInsets.zero,
-                ),
-                label: Icon(Icons.check_rounded, size: 24, color: Colors.white),
-              ),
-            ),
-            Expanded(
-              flex: 1,
-
-              child: ElevatedButton.icon(
-                onPressed: () => controller.undo(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[300],
-                  padding: EdgeInsets.zero,
-                ),
-                label: Icon(
-                  Icons.restart_alt_rounded,
-                  size: 24,
-                  color: ConstColors.mainColor,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      body: SpecialBody(
-        body: isLoading
-            ? Porgress()
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-
-                children: [
-                  SizedBox(height: 120),
-                  Flexible(
-                    child: CardSwiper(
-                      controller: controller,
-                      cardsCount: azkar.length,
-                      onSwipe: _onSwipe,
-                      onUndo: _onUndo,
-                      onEnd: _onEnd,
-                      backCardOffset: const Offset(0, -40),
-                      numberOfCardsDisplayed: 3,
-                      isLoop: false,
-                      padding: EdgeInsets.zero,
-
-                      cardBuilder:
-                          (
-                            context,
-                            index,
-                            horizontalThresholdPercentage,
-                            verticalThresholdPercentage,
-                          ) => Container(
-                            height: MediaQuery.sizeOf(context).height * .6,
-                            width: double.infinity,
-                            alignment: Alignment.center,
-                            padding: EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              gradient: ConstColors.mainGradientColor,
-                              color: ConstColors.mainColor,
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(color: Colors.white, width: 1),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black38,
-                                  blurRadius: 10,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: MediaQuery(
-                              data: MediaQuery.of(context).copyWith(
-                                textScaler: TextScaler.linear(
-                                  widget.fontSizeFactor,
-                                ),
-                              ),
-                              child: SingleChildScrollView(
-                                physics: const BouncingScrollPhysics(),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Row(
-                                      spacing: 8,
-                                      children: [
-                                        const Expanded(
-                                          child: Divider(color: Colors.white30),
-                                        ),
-                                        Text(
-                                          (index + 1)
-                                              .toString()
-                                              .toArabicFormat(),
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                        const Expanded(
-                                          child: Divider(color: Colors.white30),
-                                        ),
-                                      ],
-                                    ),
-
-                                    const SizedBox(height: 30),
-                                    Text(
-                                      azkar[index]["content"],
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: "uthman",
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 18,
-                                        height: 1.8,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-
-                                    const SizedBox(height: 30),
-                                    Container(
-                                      alignment: Alignment.center,
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 12,
-                                        horizontal: 20,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: ConstColors.secondMainColor
-                                            .withOpacity(.25),
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Text(
-                                        "الـتــكـرار: ${Tafqeet.convert(azkar[index]["repeat"].toString())} ${(azkar[index]["repeat"] == 0
-                                            ? "مرة"
-                                            : (azkar[index]["repeat"] >= 3 && azkar[index]["repeat"] <= 10) || (azkar[index]["repeat"] > 100 && azkar[index]["repeat"] % 100 >= 3 && azkar[index]["repeat"] % 100 <= 10)
-                                            ? "مرات"
-                                            : "مرة")} (${azkar[index]["repeat"].toString().toArabicFormat()})",
-                                        textAlign: TextAlign.center,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall!
-                                            .copyWith(color: Colors.white),
-                                      ),
-                                    ),
-
-                                    if (azkar[index]["time"] != null) ...[
-                                      const SizedBox(height: 16),
-                                      Container(
-                                        alignment: Alignment.center,
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 12,
-                                          horizontal: 20,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white12,
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          azkar[index]["time"],
-                                          textAlign: TextAlign.center,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall!
-                                              .copyWith(color: Colors.white),
-                                        ),
-                                      ),
-                                    ],
-
-                                    const SizedBox(height: 20),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (_counter.value + 1 >= currentRepeat) {
+                        _counter.value = currentRepeat;
+                        await Future.delayed(const Duration(milliseconds: 150));
+                        _controller.swipe(CardSwiperDirection.right);
+                      } else {
+                        _counter.value++;
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isCounterEqualRepeat
+                          ? ConstColors.goldAccent.withValues(alpha: .2)
+                          : Colors.transparent,
+                      side: const BorderSide(color: ConstColors.goldAccent),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      transitionBuilder:
+                          (Widget child, Animation<double> animation) {
+                            return ScaleTransition(
+                              scale: animation,
+                              child: child,
+                            );
+                          },
+                      child: Text(
+                        _counter.value.toString().toArabicFormat(),
+                        key: ValueKey<int>(_counter.value),
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-                ],
+                ),
               ),
+              _buildCircularActionButton(
+                icon: Icons.restart_alt_rounded,
+                onTap: () => _controller.undo(),
+                backgroundColor: ConstColors.goldAccent,
+                iconColor: ConstColors.primaryTeal,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCircularActionButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    Color? backgroundColor,
+    required Color iconColor,
+    bool isGradient = false,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: isGradient ? null : backgroundColor,
+        gradient: isGradient ? ConstColors.tealGradient : null,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        shape: const CircleBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Icon(icon, color: iconColor, size: 28),
+          ),
+        ),
       ),
     );
+  }
+
+  Widget _buildRepeatBadge(BuildContext context, dynamic repeat) {
+    return Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: Text(
+        _getRepeatText(repeat),
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimeBadge(BuildContext context, String time) {
+    return Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+      decoration: BoxDecoration(
+        color: ConstColors.goldAccent.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: Text(
+        time,
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+          color: ConstColors.goldAccent,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompletionBottomSheet(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            "تقبل الله صلاتك\nثبتك الله وزادك",
+            style: TextStyle(
+              color: ConstColors.goldAccent,
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+              height: 1.5,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ConstColors.goldAccent,
+                foregroundColor: ConstColors.primaryTeal,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: const Text(
+                "آمين",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getRepeatText(dynamic repeat) {
+    final int r = (repeat is int)
+        ? repeat
+        : int.tryParse(repeat.toString()) ?? 0;
+    final String countWord = _getCountWord(r);
+    return "الـتــكـرار: ${Tafqeet.convert(r.toString())} $countWord (${r.toString().toArabicFormat()})";
+  }
+
+  String _getCountWord(int r) {
+    if (r == 0) return "مرة";
+    final int mod = r % 100;
+    if ((r >= 3 && r <= 10) || (r > 100 && mod >= 3 && mod <= 10)) {
+      return "مرات";
+    }
+    return "مرة";
   }
 }
